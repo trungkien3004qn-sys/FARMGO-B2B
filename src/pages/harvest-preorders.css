@@ -75,8 +75,13 @@ body:has(.harvest-dialog[open]) { overflow:hidden; }
 .harvest-contract-rows > div + div { border-top:1px solid #e7eeea; }
 .harvest-contract-rows dd { margin:0; font-weight:750; }
 .harvest-deposit-row,.harvest-form .harvest-consent { background:#fff7e4; color:#754308; }
-.harvest-form .harvest-consent { grid-column:1/-1; display:flex; align-items:flex-start; padding:10px; border-radius:8px; }
+.harvest-form .harvest-consent { grid-column:1/-1; padding:10px; border-radius:8px; }
+.harvest-form .harvest-consent label { display:flex; align-items:flex-start; }
 .harvest-form .harvest-consent input { flex:0 0 auto; width:18px; min-height:18px; padding:0; accent-color:#08764d; }
+.harvest-consent details { margin-inline-start:26px; }
+.harvest-consent summary { padding-block:7px; color:#075745; font-weight:700; text-decoration:underline; cursor:pointer; }
+.harvest-consent ul { margin:4px 0 0; padding-inline-start:20px; }
+.harvest-consent li + li { margin-top:5px; }
 .harvest-payment { background:#eef5ff; border-color:#c8dcf7; }
 .harvest-payment-details { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:10px; }
 .harvest-payment-details > div:last-child { display:grid; gap:5px; }

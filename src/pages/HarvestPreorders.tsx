@@ -256,7 +256,18 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
         {!lot.completedAt && order.status === 'PENDING' && <form className="harvest-form" onSubmit={event => {
           event.preventDefault(); if (accepted) void run(() => api.confirmPreorder(order.id, 'OTP', otp), () => setOtp(''));
         }}>
-          <label className="harvest-consent"><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} required /> Tôi đã đọc và đồng ý với thông tin giao dịch và khoản ký quỹ mô phỏng 10%.</label>
+          <div className="harvest-consent">
+            <label><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} required /> Tôi đã đọc và đồng ý với điều khoản đặt trước.</label>
+            <details>
+              <summary>Xem điều khoản đặt trước</summary>
+              <ul>
+                <li>Giá trị đơn tính theo số kg đặt và giá cơ sở ghi trên hợp đồng. Ngày thu hoạch là ngày dự kiến.</li>
+                <li>Sau khi xác nhận bằng OTP hoặc QR mô phỏng, người mua có thể ký quỹ 10% giá trị đơn.</li>
+                <li>Hệ thống kiểm tra lượng còn lại khi ký quỹ. Khối lượng chỉ được giữ khi ký quỹ thành công.</li>
+                <li>Khoản ký quỹ được ghi nhận trong FARMGO dưới dạng mô phỏng. Không cần chuyển tiền.</li>
+              </ul>
+            </details>
+          </div>
           <label>Mã OTP mô phỏng<input inputMode="numeric" maxLength={6} value={otp} onChange={event => setOtp(event.target.value)} required /></label>
           <p>Mã thử {api.preorderOtp}</p>
           <button className="harvest-primary" disabled={busy || !accepted}>Xác nhận OTP</button>
