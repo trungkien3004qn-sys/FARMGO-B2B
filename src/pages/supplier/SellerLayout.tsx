@@ -13,6 +13,7 @@ export function SellerLayout({ children }: { children: ReactNode }) {
   const links = [
     ['/supplier', '◴', 'Tổng quan & tài chính'],
     ['/supplier/products', '▦', 'Sản phẩm & báo giá'],
+    ['/supplier/preorders', '◇', 'Đăng bán trước thu hoạch'],
     ['/supplier/orders', '▤', 'Xử lý đơn hàng'],
     ['/supplier/quality', '✓', 'Chất lượng & QC'],
     ['/supplier/claims', '⚠', 'Khiếu nại & bồi thường'],

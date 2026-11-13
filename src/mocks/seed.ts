@@ -3,7 +3,11 @@ import type { Commodity, Customer, DeliveryAddress, DemoSession, Order, ProductL
 
 import type { BusinessProfile, QualityReview, Claim } from '../types/index';
 import type { EscrowAllocation, LedgerEntry, Withdrawal } from '../types/index';
+import type { HarvestLot, HarvestRequest, Preorder } from '../types/preorder';
 export interface DemoState {
+  harvestLots?: HarvestLot[];
+  preorders?: Preorder[];
+  harvestRequests?: HarvestRequest[];
   version: 5;
   allocations: EscrowAllocation[];
   ledger: LedgerEntry[];

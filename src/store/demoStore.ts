@@ -69,7 +69,11 @@ function current(): DemoState {
   return state;
 }
 export function readState(): DemoState { return structuredClone(current()); }
-export function mutate<T>(type: DemoDataEvent['type'], action: (draft: DemoState) => T): T {
+export function mutate<T>(type: DemoDataEvent['type'], action: (draft: DemoState) => T, reloadSaved = false): T {
+  if (reloadSaved) {
+    const saved = storage()?.getItem(KEY);
+    if (saved) state = upgradeStoredState(JSON.parse(saved));
+  }
   const before = current();
   const draft = structuredClone(before);
   const result = action(draft);
