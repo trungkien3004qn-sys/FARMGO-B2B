@@ -5,6 +5,9 @@ import { getDeliveryAddresses, quoteCheckout, placeOrder, subscribeDemoData, get
 import { useBuyerCart } from '../../components/shared/useBuyerCart';
 import { useCatalog, money } from '../../components/shared/useCatalog';
 import { FruitPhoto } from '../../components/shared/FruitPhoto';
+import { getGreenAccount } from '../../services/greenService';
+import { useDemoData } from '../../components/shared/useDemoData';
+import { GreenDialog, VoucherTile } from './GreenVoucherDialog';
 import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
 
 /** Demo promo codes — UI-only mock, không ảnh hưởng mock logic/store */
@@ -37,6 +40,13 @@ export function CheckoutPage() {
   const [checkoutOptions, setCheckoutOptions] = useState<CheckoutOptions>({orderMode:'SINGLE', carrier:'GHN', paymentMethod:'BANK', insurance:true});
   const [deliveryDate, setDeliveryDate] = useState('');
   const deliverySlot: DeliverySlot = 'MORNING';
+
+  const green = useDemoData(getGreenAccount);
+  const vouchers = green.data?.customerId === cart.customerId ? green.data?.vouchers.filter(row => !row.usedOrderId) ?? [] : [];
+  const [voucherSelection, setVoucherSelection] = useState<{ customerId: string; id: string }>();
+  const [voucherOpen, setVoucherOpen] = useState(false);
+  const [voucherDraft, setVoucherDraft] = useState('');
+  const greenVoucherId = isPayment && voucherSelection?.customerId === cart.customerId ? voucherSelection?.id : undefined;
 
   /* Promo code state */
   const [promoInput, setPromoInput] = useState('');
@@ -74,28 +84,28 @@ export function CheckoutPage() {
     if (cart.customerId) getDeliveryAddresses(cart.customerId).then(data => { if (!disposed) { setAddresses(data); setAddressId(data[0]?.id || ''); setError(undefined); } }).catch(err => { if (!disposed) setError(err instanceof Error ? err.message : 'Không tải được địa chỉ.'); });
     return () => { disposed = true; };
   }, [cart.customerId]);
-  const key = JSON.stringify([cart.customerId, cart.items, addressId, deliveryDate, deliverySlot, checkoutOptions, revision, cart.ready]);
+  const key = JSON.stringify([cart.customerId, cart.items, addressId, deliveryDate, deliverySlot, checkoutOptions, greenVoucherId, revision, cart.ready]);
   useEffect(() => {
     let disposed = false;
     if (cart.ready && cart.items.length && addressId && deliveryDate) {
-      quoteCheckout({ customerId: cart.customerId, deliveryAddressId: addressId, items: cart.items, deliveryDate, deliverySlot, checkoutOptions }).then(value => { if (!disposed) setQuoteState({key, value}); }).catch(err => { if (!disposed) setQuoteState({key, error: err instanceof Error ? err.message : 'Không tính được giá.'}); });
+      quoteCheckout({ customerId: cart.customerId, deliveryAddressId: addressId, items: cart.items, deliveryDate, deliverySlot, checkoutOptions, greenVoucherId }).then(value => { if (!disposed) setQuoteState({key, value}); }).catch(err => { if (!disposed) setQuoteState({key, error: err instanceof Error ? err.message : 'Không tính được giá.'}); });
     }
     return () => { disposed = true; };
-  }, [key, cart.ready, cart.items, cart.customerId, addressId, deliveryDate, deliverySlot, checkoutOptions]);
+  }, [key, cart.ready, cart.items, cart.customerId, addressId, deliveryDate, deliverySlot, checkoutOptions, greenVoucherId]);
   const quote = quoteState.key === key ? quoteState.value : undefined;
   const requestError = quoteState.key === key ? quoteState.error : undefined;
-  const promoDiscount = quote ? calcPromoDiscount(appliedPromo, quote.subtotalVnd, quote.shippingFeeVnd) : undefined;
+  const promoDiscount = quote ? calcPromoDiscount(greenVoucherId ? undefined : appliedPromo, quote.subtotalVnd, quote.shippingFeeVnd) : undefined;
   const displayTotal = quote ? quote.totalVnd - (promoDiscount?.discountVnd || 0) : undefined;
   const place = async () => {
     if (!isPayment || !quote || submitting || !cart.ready) return;
     setSubmitting(true); setError(undefined);
     try {
-      const fingerprint = JSON.stringify([cart.customerId,addressId,cart.items,deliveryDate,deliverySlot,checkoutOptions]);
+      const fingerprint = JSON.stringify([cart.customerId,addressId,cart.items,deliveryDate,deliverySlot,checkoutOptions,greenVoucherId]);
       const storageKey = `farmgo-checkout-attempt-${cart.customerId}`;
       const previous = JSON.parse(localStorage.getItem(storageKey) || 'null') as {fingerprint:string; requestKey:string} | null;
       const attempt = previous?.fingerprint === fingerprint ? previous : {fingerprint,requestKey:crypto.randomUUID()};
       localStorage.setItem(storageKey,JSON.stringify(attempt));
-      const order = await placeOrder({ requestKey: attempt.requestKey, customerId: cart.customerId, deliveryAddressId: addressId, items: cart.items, deliveryDate, deliverySlot, checkoutOptions });
+      const order = await placeOrder({ requestKey: attempt.requestKey, customerId: cart.customerId, deliveryAddressId: addressId, items: cart.items, deliveryDate, deliverySlot, checkoutOptions, greenVoucherId });
       const cleared = cart.clear();
       if (cleared) { try { localStorage.removeItem(storageKey); } catch { /* Keep the key so retry remains idempotent. */ } }
       navigate(`/customer/orders/${order.id}`, {state: {placedTotal: order.totalVnd}});
@@ -126,8 +136,7 @@ export function CheckoutPage() {
         <div><span>Phí vận chuyển ước tính<br /><small>(dữ liệu demo)</small></span><strong>{money(quote.shippingFeeVnd)}</strong></div>
         <div><span>Bảo hiểm nông sản (0,5%)</span><strong>{money(quote.insuranceFeeVnd || 0)}</strong></div>
 
-        {/* --- Mã khuyến mãi --- */}
-        <div className="promo-code-section">
+        {!greenVoucherId && <div className="promo-code-section">
           <label className="promo-code-label">🏷️ Mã khuyến mãi</label>
           {appliedPromo ? (
             <div className="promo-applied">
@@ -149,10 +158,32 @@ export function CheckoutPage() {
           )}
           {promoError && <small className="promo-error">{promoError}</small>}
           <small className="promo-hint">Mã demo: FARMGO10, FREESHIP, WELCOME50</small>
-        </div>
+        </div>}
 
         {promoDiscount && <div className="promo-discount-line"><span>Khuyến mãi ({promoDiscount.label})</span><strong>−{money(promoDiscount.discountVnd)}</strong></div>}
+        {quote.shippingDiscountVnd !== undefined && <div className="promo-discount-line"><span>Voucher FARMGO Xanh</span><strong>−{money(quote.shippingDiscountVnd)}</strong></div>}
         <div className="checkout-total"><span>Tổng cộng</span><strong>{money(displayTotal!)}</strong></div>
-      </> : !requestError && <LoadingSpinner text="Đang cập nhật báo giá…" />}<p>Giá và phí được tính lại khi xác nhận đặt hàng.</p>{isPayment && <button className="btn-secondary" disabled={submitting} onClick={() => setSearchParams({})}>Quay lại kiểm tra đơn hàng</button>}<button className="btn-primary" disabled={submitting || !quote} onClick={isPayment ? place : () => { setSearchParams({step:'payment'}); window.scrollTo(0,0); }}>{submitting ? 'Đang tạo đơn…' : isPayment ? 'Xác nhận đặt hàng & thanh toán demo' : 'Tiếp tục thanh toán'}</button><small>Thanh toán và giữ tiền Escrow giả lập, không thu tiền thật.</small></section>
-    </div></>;
+      </> : !requestError && <LoadingSpinner text="Đang cập nhật báo giá…" />}
+      {isPayment && <div className="green-picker-actions">
+        <button type="button" className="btn-secondary" disabled={!quote || submitting} onClick={() => { setVoucherDraft(greenVoucherId ?? ''); setVoucherOpen(true); }}>{greenVoucherId ? 'Đổi voucher' : 'Áp voucher'}</button>
+        {greenVoucherId && <button type="button" className="btn-secondary" disabled={submitting} onClick={() => setVoucherSelection(undefined)}>Bỏ voucher</button>}
+      </div>}
+      <p>Giá và phí được tính lại khi xác nhận đặt hàng.</p>{isPayment && <button className="btn-secondary" disabled={submitting} onClick={() => setSearchParams({})}>Quay lại kiểm tra đơn hàng</button>}<button className="btn-primary" disabled={submitting || !quote} onClick={isPayment ? place : () => { setSearchParams({step:'payment'}); window.scrollTo(0,0); }}>{submitting ? 'Đang tạo đơn…' : isPayment ? 'Xác nhận đặt hàng & thanh toán demo' : 'Tiếp tục thanh toán'}</button><small>Thanh toán và giữ tiền Escrow giả lập, không thu tiền thật.</small></section>
+    </div>
+    {isPayment && voucherOpen && <GreenDialog title="Chọn voucher vận chuyển" close={() => setVoucherOpen(false)}>
+      {green.error && <ErrorMessage message={green.error} />}
+      {!green.data && !green.error && <LoadingSpinner />}
+      {green.data && !vouchers.length && <p>Chưa có voucher khả dụng. <Link to="/customer/green">Đến FARMGO Xanh</Link></p>}
+      {vouchers.map(row => <VoucherTile key={row.id} value={row.valueVnd} action={
+        <input type="radio" name="green-voucher" aria-label={`Chọn voucher ${row.id}`} checked={voucherDraft === row.id}
+          onChange={() => setVoucherDraft(row.id)} />
+      }>{row.id} · Giảm {money(Math.min(row.valueVnd, quote?.shippingFeeVnd ?? 0))} cho đơn này</VoucherTile>)}
+      {!!vouchers.length && <div className="green-picker-actions"><button className="green-primary" type="button"
+        disabled={!vouchers.some(row => row.id === voucherDraft)} onClick={() => {
+          setVoucherSelection({ customerId: cart.customerId, id: voucherDraft });
+          clearPromo();
+          setVoucherOpen(false);
+        }}>Áp dụng</button></div>}
+    </GreenDialog>}
+    </>;
 }

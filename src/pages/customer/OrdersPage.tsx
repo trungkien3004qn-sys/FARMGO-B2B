@@ -187,7 +187,7 @@ export function OrdersPage() {
               <div className="buyer-order-summary">
                 <div className="buyer-order-total">
                   <div className="buyer-order-fees">
-                    <span>Phí giao: {money(order.shippingFeeVnd)}</span>
+                    <span>Phí giao: {money(order.shippingFeeVnd - (order.shippingDiscountVnd ?? 0))}</span>
                     {(order.insuranceFeeVnd ?? 0) > 0 && <span>Bảo hiểm: {money(order.insuranceFeeVnd ?? 0)}</span>}
                   </div>
                   <div>Tổng tiền ({order.items.length} mặt hàng) <strong>{money(order.totalVnd)}</strong></div>

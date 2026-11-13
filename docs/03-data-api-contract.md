@@ -37,3 +37,9 @@ Phần mở rộng mô phỏng dùng ba mảng tùy chọn `harvestLots`, `preor
 `preorderService.ts` cung cấp `getPreorderMarket`, `publishHarvestLot`, `completeHarvestLot`, `createPreorder`, `confirmPreorder`, `depositPreorder` và `submitHarvestRequest`. Mỗi khách dùng một mã yêu cầu ổn định cho lần tạo đơn. Đơn lưu giá/kg tại thời điểm tạo. Xác nhận OTP/QR mô phỏng chuyển `PENDING` sang `CONFIRMED`. Ký quỹ mô phỏng 10% (làm tròn VND) chuyển sang `DEPOSITED` sau khi kiểm tra lại lượng còn và lưu trong cùng thao tác. Gửi lại thao tác ký quỹ trả đơn đã ghi nhận. Khi trình duyệt hỗ trợ Web Locks, thao tác ghi đặt trước cùng origin được tuần tự hóa và đọc lại bản lưu trước khi ghi.
 
 Hoàn tất lô đóng nhận xác nhận và cọc mới. Các khoản cọc chỉ ghi trên đơn đặt trước. Chưa thu 90% còn lại, hủy/hoàn cọc, bù thiếu sản lượng hoặc hạch toán chung với sổ Escrow bán ngay. Yêu cầu riêng được hiển thị cho nhà vườn như nhu cầu chung.
+
+## FARMGO Xanh
+
+Dữ liệu v5 bổ sung hai mảng tùy chọn `greenPickups` và `greenVouchers`, tách theo tài khoản mua. Yêu cầu thu gom chuyển `WAITING` → `EN_ROUTE` → `COMPLETE`. Xác nhận mô phỏng OTP/QR ghi khối lượng cân thực tế một lần. Mỗi kg nguyên đã bàn giao cộng 2.000 điểm. Đổi 50.000 hoặc 100.000 điểm lấy voucher vận chuyển cùng mệnh giá VND. Mã yêu cầu đổi voucher dùng để chống ghi lặp.
+
+`NewOrderInput.greenVoucherId` là tùy chọn. Báo giá kiểm tra quyền sở hữu và trạng thái voucher. `shippingDiscountVnd` bằng mức nhỏ hơn giữa phí giao và mệnh giá. Tổng đơn và khoản giữ Escrow giảm đúng số này. Khi đặt đơn thành công, voucher gắn với mã đơn trong cùng thao tác lưu. Mã voucher tham gia fingerprint chống lặp, và fingerprint của đơn cũ được giữ tương thích. Voucher dùng một lần, phần mệnh giá dư không chuyển sang đơn khác. Voucher FARMGO Xanh và mã khuyến mãi giao diện cũ không cộng dồn.

@@ -5,6 +5,7 @@ export * from './governanceService';
 import type * as T from '../types/index';
 import { createSeed, shippingFees, type DemoState } from '../mocks/seed';
 import { mutate, readState, subscribe } from '../store/demoStore';
+import { updateGreenCheckout } from './greenService';
 
 function fail(code: T.ServiceErrorCode, message: string, details?: Record<string, unknown>): never {
   throw Object.assign(new Error(message), { code, details });
@@ -81,9 +82,16 @@ function quote(state: DemoState, input: T.NewOrderInput): T.CheckoutQuote {
     shippingFeeVnd = options.orderMode === 'GROUP' ? 20000 : { GHN: 35000, GHTK: 30000, TRUCK: 25000 }[options.carrier];
   }
   const insuranceFeeVnd = options?.insurance ? Math.round(subtotalVnd * 0.005) : 0;
-  const totalVnd = subtotalVnd + shippingFeeVnd + insuranceFeeVnd;
+  let shippingDiscountVnd = 0;
+  if (input.greenVoucherId) {
+    const voucher = state.greenVouchers?.find(row => row.id === input.greenVoucherId && row.customerId === input.customerId && !row.usedOrderId);
+    requireValue(state.session.role === 'CUSTOMER' && state.session.activeCustomerId === input.customerId && voucher, 'Voucher đã dùng hoặc không thuộc tài khoản.', 'greenVoucherId');
+    shippingDiscountVnd = Math.min(voucher.valueVnd, shippingFeeVnd);
+  }
+  const totalVnd = subtotalVnd + shippingFeeVnd + insuranceFeeVnd - shippingDiscountVnd;
   integer(totalVnd, 'Tổng tiền');
-  return { items, subtotalVnd, shippingFeeVnd, totalVnd, ...(options ? { checkoutOptions: { ...options }, insuranceFeeVnd } : {}) };
+  return { items, subtotalVnd, shippingFeeVnd, totalVnd, ...(options ? { checkoutOptions: { ...options }, insuranceFeeVnd } : {}),
+    ...(input.greenVoucherId ? { greenVoucherId: input.greenVoucherId, shippingDiscountVnd } : {}) };
 }
 function demand(state: DemoState): T.DemandLine[] {
   const lines = new Map<string, T.DemandLine>();
@@ -159,7 +167,7 @@ export async function getDeliveryAddresses(customerId: string): Promise<T.Delive
 }
 export async function quoteCheckout(input: T.NewOrderInput): Promise<T.CheckoutQuote> { return quote(readState(), input); }
 export async function placeOrder(input: T.NewOrderInput): Promise<T.Order> {
-  return mutate('DATA_CHANGED', state => {
+  const place = (state: DemoState) => {
     const key = `order:${requestKey(input.requestKey)}`;
     const fingerprint = requestFingerprint(input);
     const old = state.operations[key];
@@ -168,8 +176,10 @@ export async function placeOrder(input: T.NewOrderInput): Promise<T.Order> {
     const result = quote(state, input);
     for (const item of result.items) find(state.products, item.productId).availableKg -= item.quantityKg;
     const order: T.Order = { id: `order-${state.nextId++}`, customerId: input.customerId, deliveryAddressId: input.deliveryAddressId, ...result, ...delivery, paymentRequestKey: input.requestKey, status: 'PLACED', paymentStatus: 'PAID', placedAt: state.demoNow };
+    if (result.greenVoucherId) state.greenVouchers!.find(row => row.id === result.greenVoucherId)!.usedOrderId = order.id;
     state.orders.push(order); holdOrder(state, order); state.operations[key] = { fingerprint, entityId: order.id }; return order;
-  });
+  };
+  return input.greenVoucherId ? updateGreenCheckout(place) : mutate('DATA_CHANGED', place);
 }
 export async function getCustomerOrders(customerId: string): Promise<T.Order[]> {
   const state = readState(); find(state.customers, customerId); return state.orders.filter(order => order.customerId === customerId);

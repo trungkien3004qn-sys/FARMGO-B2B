@@ -15,7 +15,7 @@ export function requestFingerprint(input: T.NewOrderInput) {
   const quantities = new Map<string, number>(); input.items.forEach(i => quantities.set(i.productId, (quantities.get(i.productId) ?? 0) + i.quantityKg));
   const options = input.checkoutOptions;
   const extra = options ? [options.orderMode, options.carrier, options.paymentMethod, options.insurance] : [];
-  return JSON.stringify([input.customerId, input.deliveryAddressId, input.deliveryDate, input.deliverySlot, [...quantities].sort(([a], [b]) => a.localeCompare(b)), ...extra]);
+  return JSON.stringify([input.customerId, input.deliveryAddressId, input.deliveryDate, input.deliverySlot, [...quantities].sort(([a], [b]) => a.localeCompare(b)), ...extra, ...(input.greenVoucherId ? [{ greenVoucherId: input.greenVoucherId }] : [])]);
 }
 export function requestKey(key: unknown) { check(typeof key === 'string' && key.trim().length > 0 && key.length <= 180, 'Thiếu mã chống xử lý lặp cho giao dịch demo.'); return key; }
 export function post(s: DemoState, entry: Omit<T.LedgerEntry, 'id' | 'createdAt'>) {

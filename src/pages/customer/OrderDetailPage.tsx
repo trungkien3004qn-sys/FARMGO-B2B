@@ -116,6 +116,7 @@ export function OrderDetailContent({ id }: { id: string }) {
           <dl>
             <div><dt>Tiền hàng</dt><dd>{money(order.subtotalVnd)}</dd></div>
             <div><dt>Phí giao</dt><dd>{money(order.shippingFeeVnd)}</dd></div>
+            {!!order.shippingDiscountVnd && <div><dt>Voucher FARMGO Xanh</dt><dd>−{money(order.shippingDiscountVnd)}</dd></div>}
             {!!order.insuranceFeeVnd && <div><dt>Bảo hiểm</dt><dd>{money(order.insuranceFeeVnd)}</dd></div>}
           </dl>
         </details>

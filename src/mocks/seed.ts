@@ -5,6 +5,8 @@ import type { BusinessProfile, QualityReview, Claim } from '../types/index';
 import type { EscrowAllocation, LedgerEntry, Withdrawal } from '../types/index';
 import type { HarvestLot, HarvestRequest, Preorder } from '../types/preorder';
 export interface DemoState {
+  greenPickups?: import('../types/green').GreenPickup[];
+  greenVouchers?: import('../types/green').GreenVoucher[];
   harvestLots?: HarvestLot[];
   preorders?: Preorder[];
   harvestRequests?: HarvestRequest[];

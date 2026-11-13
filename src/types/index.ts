@@ -107,6 +107,8 @@ export interface OrderItem {
 }
 
 export interface Order {
+  greenVoucherId?: string;
+  shippingDiscountVnd?: number;
   checkoutOptions?: CheckoutOptions;
   insuranceFeeVnd?: number;
   deliveryDate?: string;
@@ -126,6 +128,8 @@ export interface Order {
 }
 
 export interface CheckoutQuote {
+  greenVoucherId?: string;
+  shippingDiscountVnd?: number;
   checkoutOptions?: CheckoutOptions;
   insuranceFeeVnd?: number;
   items: OrderItem[];
@@ -171,6 +175,7 @@ export interface CheckoutOptions {
 }
 
 export interface NewOrderInput {
+  greenVoucherId?: string;
   checkoutOptions?: CheckoutOptions;
   deliveryDate?: string;
   deliverySlot?: DeliverySlot;
