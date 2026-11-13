@@ -100,14 +100,21 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
   }
 
   if (!data) return error ? <ErrorMessage message={error} /> : <LoadingSpinner />;
-  const lots = data.lots.filter(lot => seller
-    ? filter === 'all' || (filter === 'closed' ? !!lot.completedAt : !lot.completedAt)
-    : !lot.completedAt && (filter === 'all' || (filter === 'vietgap' ? lot.vietGap : lot.grade === 'Loại 1')));
+  const openLots = data.lots.filter(lot => !lot.completedAt);
+  const awaitingDeposit = new Set(data.orders.filter(order => order.status === 'CONFIRMED').map(order => order.lotId));
+  const sellerFilters = [
+    { key: 'all', label: 'Tất cả lô đăng', lots: data.lots },
+    { key: 'open', label: 'Lô đang đăng', lots: openLots },
+    { key: 'waiting', label: 'Đang chờ cọc', lots: openLots.filter(lot => awaitingDeposit.has(lot.id)) },
+    { key: 'deposited', label: 'Đã cọc xong', lots: openLots.filter(lot => lot.depositCount > 0) },
+    { key: 'closed', label: 'Cọc hoàn tất', lots: data.lots.filter(lot => lot.completedAt && lot.depositCount > 0) },
+  ];
+  const lots = seller ? sellerFilters.find(option => option.key === filter)?.lots ?? data.lots
+    : openLots.filter(lot => filter === 'all' || (filter === 'vietgap' ? lot.vietGap : lot.grade === 'Loại 1'));
   const order = panel?.kind === 'order' ? data.orders.find(row => row.id === panel.id) : undefined;
   const lotId = order?.lotId ?? (panel && 'id' in panel ? panel.id : undefined);
   const lot = data.lots.find(row => row.id === lotId);
-  const filters = seller ? [['all', 'Tất cả lô'], ['open', 'Lô đang đăng'], ['closed', 'Lô đã hoàn tất']]
-    : [['all', 'Tất cả loại'], ['grade', 'Loại 1'], ['vietgap', 'VietGAP']];
+  const filters = [['all', 'Tất cả loại'], ['grade', 'Loại 1'], ['vietgap', 'VietGAP']];
   const shownOrders = data.orders.filter(row => orderFilter === 'all' || row.status === orderFilter);
 
   function submitLot(event: FormEvent<HTMLFormElement>) {
@@ -135,9 +142,15 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
     {error && <ErrorMessage message={error} />}
     {notice && <p role="status">{notice}</p>}
     <div className="harvest-section-head"><h2>{seller ? 'Lô của nhà vườn' : 'Lô đang mở đặt trước'}</h2>
-      <div className="harvest-filters" role="group" aria-label="Lọc lô hàng">{filters.map(([key, label]) =>
-        <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}</div>
+      {!seller && <div className="harvest-filters" role="group" aria-label="Lọc lô hàng">{filters.map(([key, label]) =>
+        <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}</div>}
     </div>
+    {seller && <div className="harvest-filters harvest-seller-filters" role="group" aria-label="Lọc lô hàng">
+      {sellerFilters.map(option => <button key={option.key} type="button" aria-pressed={filter === option.key}
+        data-filter={option.key} onClick={() => setFilter(option.key)}>
+        {option.label} <span>{option.lots.length}</span>
+      </button>)}
+    </div>}
     {!lots.length && <p className="harvest-empty">Chưa có lô phù hợp.</p>}
     <div className="harvest-grid">
       {lots.map(row => <article key={row.id} className="harvest-lot" data-color={row.color} data-closed={!!row.completedAt}>

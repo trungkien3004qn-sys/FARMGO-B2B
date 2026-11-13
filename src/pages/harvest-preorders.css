@@ -12,6 +12,10 @@
 .harvest-section-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:22px 0 12px; }
 .harvest-section-head h2 { margin:0; font-size:1.15rem; }
 .harvest-filters,.harvest-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.harvest-seller-filters { padding:10px; margin-bottom:14px; border:1px solid #dbe7df; border-radius:12px; background:white; }
+.harvest-seller-filters button span { display:inline-grid; min-width:24px; padding:2px 5px; place-items:center; border-radius:999px; background:#dde7e2; font-size:.8em; }
+.harvest-seller-filters button[data-filter="waiting"][aria-pressed="false"] span { background:#ffe0a0; color:#654208; }
+.harvest-seller-filters button[aria-pressed="true"] span { background:#ffffff30; }
 .harvest-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
 .harvest-lot,.harvest-order { --lot-color:#08764d; border:1px solid #dbe7df; border-radius:14px; background:white; overflow:hidden; }
 .harvest-lot[data-color="gold"],.harvest-order[data-color="gold"] { --lot-color:#8a5900; }
