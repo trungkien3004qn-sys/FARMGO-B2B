@@ -19,7 +19,7 @@ const statuses: Record<PreorderStatus, string> = {
 const kg = (value: number) => value.toLocaleString('vi-VN') + ' kg';
 const day = (value: string) => value.slice(0, 10).split('-').reverse().join('/');
 
-function Dialog({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
+function Dialog({ title, close, children, compact }: { title: string; close: () => void; children: ReactNode; compact?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
   useEffect(() => {
@@ -27,7 +27,7 @@ function Dialog({ title, close, children }: { title: string; close: () => void; 
     dialog.showModal();
     return () => dialog.close();
   }, []);
-  return <dialog ref={ref} className="harvest-dialog" aria-labelledby={id}
+  return <dialog ref={ref} className={compact ? 'harvest-dialog harvest-dialog-compact' : 'harvest-dialog'} aria-labelledby={id}
     onCancel={event => { event.preventDefault(); close(); }}>
     <header><h2 id={id}>{title}</h2><button type="button" aria-label="Đóng" onClick={close}>×</button></header>
     <div className="harvest-dialog-body">{children}</div>
@@ -74,10 +74,14 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
   const [notice, setNotice] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [otp, setOtp] = useState('');
+  const [accepted, setAccepted] = useState(false);
+  const [copyMessage, setCopyMessage] = useState('');
 
   function show(next?: Panel) {
     setFormError('');
     setOtp('');
+    setAccepted(false);
+    setCopyMessage('');
     if (next?.kind === 'buy') {
       setQuantity(1);
       requestKey.current = crypto.randomUUID();
@@ -172,10 +176,10 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
         <span>{row.id} · Ngày cần {day(row.neededDate)}</span>{row.note && <p>{row.note}</p>}
       </article>)}
     </section>}
-    {panel && <Dialog key={panel.kind} close={() => { if (!lock.current) show(); }} title={
+    {panel && <Dialog key={panel.kind} compact={panel.kind === 'buy'} close={() => { if (!lock.current) show(); }} title={
       panel.kind === 'new' ? 'Thêm lô mới' : panel.kind === 'request' ? 'Yêu cầu riêng'
-        : panel.kind === 'buy' ? 'Đặt trước lô hàng' : panel.kind === 'close' ? 'Hoàn tất lô'
-          : panel.kind === 'order' ? 'Chi tiết đơn đặt trước' : 'Chi tiết lô hàng'
+        : panel.kind === 'buy' ? 'Đặt trước · ' + (lot?.productName ?? 'Lô hàng') : panel.kind === 'close' ? 'Hoàn tất lô'
+          : panel.kind === 'order' ? 'Hợp đồng mua bán trước thu hoạch' : 'Chi tiết lô hàng'
     }>
       {formError && <ErrorMessage message={formError} />}
       {panel.kind === 'new' && <form onSubmit={submitLot}>
@@ -218,33 +222,65 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
         <p>Đóng nhận đơn và tiền cọc mới cho lô <b>{lot.title}</b>?</p>
         <button className="harvest-primary" disabled={busy} onClick={() => void run(() => api.completeHarvestLot(lot.id), () => { show(); setNotice('Đã hoàn tất lô.'); })}>Xác nhận hoàn tất</button>
       </>}
-      {lot && panel.kind === 'buy' && <form className="harvest-form" onSubmit={event => {
+      {lot && panel.kind === 'buy' && <form className="harvest-checkout" onSubmit={event => {
         event.preventDefault();
         void run(async () => {
           const created = await api.createPreorder(lot.id, quantity, requestKey.current);
           show({ kind: 'order', id: created.id });
         }, () => {});
       }}>
-        <p>{lot.title} · {money(lot.pricePerKg)}/kg · Còn {kg(lot.remaining)}</p>
+        <div className="harvest-checkout-context"><b>Nhà vườn</b> {lot.supplierName} · {lot.region}<br /><b>Giá cơ sở</b> {money(lot.pricePerKg)}/kg</div>
         <label>Khối lượng đặt (kg)<input type="number" min="1" max={lot.remaining} value={quantity || ''} onChange={event => setQuantity(Number(event.target.value))} required /></label>
-        <p>Giá trị {money(quantity * lot.pricePerKg)} · Ký quỹ 10% {money(api.depositFor(quantity * lot.pricePerKg))}</p>
-        <button className="harvest-primary" disabled={busy || !lot.remaining}>Tạo đơn đặt trước</button>
+        <small>Còn nhận đặt <b>{kg(lot.remaining)}</b></small>
+        <dl className="harvest-contract-rows">
+          <div><dt>Giá trị đơn dự kiến</dt><dd>{money(quantity * lot.pricePerKg)}</dd></div>
+          <div className="harvest-deposit-row"><dt>Tiền ký quỹ (10%)</dt><dd>{money(api.depositFor(quantity * lot.pricePerKg))}</dd></div>
+        </dl>
+        <div className="harvest-actions"><button type="button" disabled={busy} onClick={() => show()}>Hủy</button><button className="harvest-primary" disabled={busy || !lot.remaining}>Tiếp tục xem hợp đồng</button></div>
       </form>}
-      {lot && order && <>
-        <OrderSummary order={order} lot={lot} />
-        {order.verification && <p>Đã xác nhận bằng {order.verification}</p>}
+      {lot && order && <div className="harvest-contract">
+        <div className="harvest-contract-meta"><span className="harvest-badge">{statuses[order.status]}</span><span>Mã hợp đồng <b>{order.id}</b></span></div>
+        <div className="harvest-contract-total"><span>Tổng giá trị dự kiến<br />{kg(order.quantityKg)} × {money(order.pricePerKg)}/kg</span><strong>{money(order.totalVnd)}</strong></div>
+        <section className="harvest-contract-section">
+          <h3>Thông tin giao dịch</h3>
+          <dl className="harvest-contract-rows">
+            <div><dt>Lô hàng</dt><dd>{lot.productName} · {lot.id}</dd></div>
+            <div><dt>Nhà vườn</dt><dd>{lot.supplierName}</dd></div>
+            <div><dt>Sản lượng đặt</dt><dd>{kg(order.quantityKg)}</dd></div>
+            <div><dt>Giá cơ sở</dt><dd>{money(order.pricePerKg)}/kg</dd></div>
+            <div><dt>Thu hoạch dự kiến</dt><dd>{day(lot.harvestDate)}</dd></div>
+            <div className="harvest-deposit-row"><dt>Ký quỹ 10%</dt><dd>{money(order.depositVnd)}</dd></div>
+          </dl>
+        </section>
         {lot.completedAt && order.status !== 'DEPOSITED' && <p>Lô đã đóng nhận xác nhận và đặt cọc.</p>}
         {!lot.completedAt && order.status === 'PENDING' && <form className="harvest-form" onSubmit={event => {
-          event.preventDefault(); void run(() => api.confirmPreorder(order.id, 'OTP', otp), () => setOtp(''));
+          event.preventDefault(); if (accepted) void run(() => api.confirmPreorder(order.id, 'OTP', otp), () => setOtp(''));
         }}>
+          <label className="harvest-consent"><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} required /> Tôi đã đọc và đồng ý với thông tin giao dịch và khoản ký quỹ mô phỏng 10%.</label>
           <label>Mã OTP mô phỏng<input inputMode="numeric" maxLength={6} value={otp} onChange={event => setOtp(event.target.value)} required /></label>
           <p>Mã thử {api.preorderOtp}</p>
-          <button className="harvest-primary" disabled={busy}>Xác nhận OTP</button>
-          <button type="button" disabled={busy} onClick={() => void run(() => api.confirmPreorder(order.id, 'QR', ''), () => setOtp(''))}>Mô phỏng xác nhận QR</button>
+          <button className="harvest-primary" disabled={busy || !accepted}>Xác nhận OTP</button>
+          <button type="button" disabled={busy || !accepted} onClick={() => void run(() => api.confirmPreorder(order.id, 'QR', ''), () => setOtp(''))}>Mô phỏng xác nhận QR</button>
         </form>}
-        {!lot.completedAt && order.status === 'CONFIRMED' && <button className="harvest-primary" disabled={busy}
-          onClick={() => void run(() => api.depositPreorder(order.id), () => {})}>Ký quỹ mô phỏng {money(order.depositVnd)}</button>}
-      </>}
+        {order.verification && <p>Đã xác nhận bằng {order.verification}</p>}
+        {!lot.completedAt && order.status === 'CONFIRMED' && <section className="harvest-payment">
+          <h3>Ký quỹ 10%</h3>
+          <div className="harvest-payment-details">
+            <div className="harvest-qr"><svg aria-hidden="true" viewBox="0 0 24 24" width="52" height="52" fill="currentColor"><path d="M2 2h8v8H2zm2 2v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10-2h4v4h-4zm4 4h4v4h-4zm2-4h2v2h-2zm-6 6h2v2h-2z" /></svg><span>QR minh họa</span></div>
+            <div><p>Số tiền ký quỹ <strong>{money(order.depositVnd)}</strong></p>
+              <p>Nội dung chuyển khoản <code>{order.id}</code></p>
+              <button type="button" onClick={async () => {
+                try { await navigator.clipboard.writeText(order.id); setCopyMessage('Đã sao chép mã hợp đồng.'); }
+                catch { setCopyMessage('Hãy chọn và sao chép mã hợp đồng ở trên.'); }
+              }}>Sao chép nội dung chuyển khoản</button>
+              {copyMessage && <p role="status">{copyMessage}</p>}
+            </div>
+          </div>
+          <button className="harvest-primary" disabled={busy}
+            onClick={() => void run(() => api.depositPreorder(order.id), () => {})}>Xác nhận ký quỹ mô phỏng</button>
+        </section>}
+        {order.status === 'DEPOSITED' && <p className="harvest-checkout-context" role="status">Đã ghi nhận ký quỹ mô phỏng <b>{money(order.depositVnd)}</b>.</p>}
+      </div>}
     </Dialog>}
   </main>;
 }

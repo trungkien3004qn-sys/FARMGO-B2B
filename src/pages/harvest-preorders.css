@@ -57,6 +57,30 @@ body:has(.harvest-dialog[open]) { overflow:hidden; }
 .harvest-form label { display:grid; gap:4px; min-width:0; font-weight:650; }
 .harvest-form :is(input,select,textarea) { box-sizing:border-box; width:100%; min-width:0; min-height:44px; border:1px solid #a8bdb0; border-radius:7px; background:white; padding:8px; font:inherit; }
 .harvest-form > p,.harvest-form > button { grid-column:1/-1; margin:0; }
+.harvest-dialog-compact { width:min(520px,calc(100% - 24px)); }
+.harvest-checkout,.harvest-contract { display:grid; gap:14px; }
+.harvest-checkout label { display:grid; gap:5px; font-weight:700; }
+.harvest-checkout input { width:100%; min-width:0; min-height:46px; padding:8px 12px; border:1px solid #17865c; border-radius:8px; font:inherit; }
+.harvest-checkout small { margin-top:-8px; color:#50685c; }
+.harvest-checkout .harvest-actions .harvest-primary { flex:1; }
+.harvest-checkout-context,.harvest-payment,.harvest-contract-section { padding:12px; border:1px solid #dbe7df; border-radius:12px; background:#eef8f2; }
+.harvest-contract-meta,.harvest-contract-total { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.harvest-contract-total { padding:14px; border-radius:12px; color:#e5f2ef; background:#142238; }
+.harvest-contract-total strong { color:#59e3b2; font-size:clamp(1.3rem,4vw,1.8rem); }
+.harvest-contract-section { background:#f5f8fa; }
+.harvest-contract h3,.harvest-contract p { margin:0; }
+.harvest-contract-rows { margin:0; border:1px solid #dbe7df; border-radius:9px; overflow:hidden; background:white; }
+.harvest-contract-section h3,.harvest-payment h3 { margin-bottom:8px; }
+.harvest-contract-rows > div { display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px 12px; padding:9px 10px; }
+.harvest-contract-rows > div + div { border-top:1px solid #e7eeea; }
+.harvest-contract-rows dd { margin:0; font-weight:750; }
+.harvest-deposit-row,.harvest-form .harvest-consent { background:#fff7e4; color:#754308; }
+.harvest-form .harvest-consent { grid-column:1/-1; display:flex; align-items:flex-start; padding:10px; border-radius:8px; }
+.harvest-form .harvest-consent input { flex:0 0 auto; width:18px; min-height:18px; padding:0; accent-color:#08764d; }
+.harvest-payment { background:#eef5ff; border-color:#c8dcf7; }
+.harvest-payment-details { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:10px; }
+.harvest-payment-details > div:last-child { display:grid; gap:5px; }
+.harvest-qr { display:grid; justify-items:center; gap:4px; padding:8px; border:1px dashed #92afd4; border-radius:8px; font-size:.875rem; }
 @media(max-width:700px) {
   .harvest-grid,.harvest-seller .harvest-lot,.harvest-detail-grid,.harvest-form { grid-template-columns:minmax(0,1fr); }
   .harvest-seller .harvest-lot > .harvest-photo { margin:0; border-radius:0; }
