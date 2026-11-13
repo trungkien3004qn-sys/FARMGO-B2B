@@ -260,12 +260,14 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
             <label><input type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} required /> Tôi đã đọc và đồng ý với điều khoản đặt trước.</label>
             <details>
               <summary>Xem điều khoản đặt trước</summary>
-              <ul>
-                <li>Giá trị đơn tính theo số kg đặt và giá cơ sở ghi trên hợp đồng. Ngày thu hoạch là ngày dự kiến.</li>
-                <li>Sau khi xác nhận bằng OTP hoặc QR mô phỏng, người mua có thể ký quỹ 10% giá trị đơn.</li>
-                <li>Hệ thống kiểm tra lượng còn lại khi ký quỹ. Khối lượng chỉ được giữ khi ký quỹ thành công.</li>
-                <li>Khoản ký quỹ được ghi nhận trong FARMGO dưới dạng mô phỏng. Không cần chuyển tiền.</li>
-              </ul>
+              <ol>
+                <li><strong>Lô hàng và thời điểm thu hoạch.</strong> Đơn đặt trước áp dụng cho lô hàng ghi trên hợp đồng. Khối lượng đặt được tính theo kg. Ngày thu hoạch là ngày dự kiến do nhà vườn công bố khi đăng lô.</li>
+                <li><strong>Đơn giá và giá trị đơn.</strong> Đơn giá cơ sở được ghi nhận tại thời điểm tạo đơn. Giá trị đơn bằng khối lượng đặt nhân với đơn giá này. Khoản ký quỹ bằng 10% giá trị đơn, làm tròn đến đồng Việt Nam.</li>
+                <li><strong>Xác nhận đơn đặt trước.</strong> Sau khi đọc và đồng ý với các điều khoản, bên mua xác nhận đơn bằng OTP hoặc QR mô phỏng. Đơn đã xác nhận được chuyển sang trạng thái chờ ký quỹ.</li>
+                <li><strong>Điều kiện giữ hàng.</strong> FARMGO đối chiếu khối lượng yêu cầu với lượng còn nhận đặt tại thời điểm ký quỹ. Khối lượng chỉ được giữ sau khi khoản ký quỹ được ghi nhận thành công. Nếu lượng còn lại không đủ, yêu cầu ký quỹ không được ghi nhận.</li>
+                <li><strong>Kết thúc nhận đặt trước.</strong> Khi nhà vườn hoàn tất lô, FARMGO dừng nhận đơn, xác nhận và ký quỹ mới cho lô đó. Bên mua có thể tra cứu khoản ký quỹ đã ghi nhận trong mục Đơn đặt trước của tôi.</li>
+              </ol>
+              <p>Điều khoản này áp dụng cho giao dịch mô phỏng trên FARMGO. Bên mua không cần chuyển tiền.</p>
             </details>
           </div>
           <label>Mã OTP mô phỏng<input inputMode="numeric" maxLength={6} value={otp} onChange={event => setOtp(event.target.value)} required /></label>

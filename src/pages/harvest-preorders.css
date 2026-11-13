@@ -80,8 +80,9 @@ body:has(.harvest-dialog[open]) { overflow:hidden; }
 .harvest-form .harvest-consent input { flex:0 0 auto; width:18px; min-height:18px; padding:0; accent-color:#08764d; }
 .harvest-consent details { margin-inline-start:26px; }
 .harvest-consent summary { padding-block:7px; color:#075745; font-weight:700; text-decoration:underline; cursor:pointer; }
-.harvest-consent ul { margin:4px 0 0; padding-inline-start:20px; }
+.harvest-consent ol { margin:4px 0 0; padding-inline-start:20px; }
 .harvest-consent li + li { margin-top:5px; }
+.harvest-consent details p { margin:8px 0 0; font-size:.875rem; }
 .harvest-payment { background:#eef5ff; border-color:#c8dcf7; }
 .harvest-payment-details { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:10px; }
 .harvest-payment-details > div:last-child { display:grid; gap:5px; }
