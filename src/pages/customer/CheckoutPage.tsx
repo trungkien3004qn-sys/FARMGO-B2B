@@ -10,27 +10,6 @@ import { useDemoData } from '../../components/shared/useDemoData';
 import { GreenDialog, VoucherTile } from './GreenVoucherDialog';
 import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
 
-/** Demo promo codes — UI-only mock, không ảnh hưởng mock logic/store */
-const DEMO_PROMOS: Record<string, { label: string; percent?: number; flatVnd?: number }> = {
-  'FARMGO10': { label: 'Giảm 10% tiền hàng', percent: 10 },
-  'FREESHIP': { label: 'Miễn phí vận chuyển', flatVnd: -1 },
-  'WELCOME50': { label: 'Giảm 50.000đ tiền hàng', flatVnd: 50_000 },
-};
-
-function calcPromoDiscount(
-  code: string | undefined,
-  subtotal: number,
-  shippingFee: number,
-): { discountVnd: number; label: string } | undefined {
-  if (!code) return undefined;
-  const promo = DEMO_PROMOS[code.toUpperCase()];
-  if (!promo) return undefined;
-  if (promo.flatVnd === -1) return { discountVnd: shippingFee, label: promo.label };
-  if (promo.percent) return { discountVnd: Math.round(subtotal * promo.percent / 100), label: promo.label };
-  if (promo.flatVnd) return { discountVnd: Math.min(promo.flatVnd, subtotal), label: promo.label };
-  return undefined;
-}
-
 export function CheckoutPage() {
   const cart = useBuyerCart();
   const { products } = useCatalog();
@@ -46,19 +25,7 @@ export function CheckoutPage() {
   const [voucherSelection, setVoucherSelection] = useState<{ customerId: string; id: string }>();
   const [voucherOpen, setVoucherOpen] = useState(false);
   const [voucherDraft, setVoucherDraft] = useState('');
-  const greenVoucherId = isPayment && voucherSelection?.customerId === cart.customerId ? voucherSelection?.id : undefined;
-
-  /* Promo code state */
-  const [promoInput, setPromoInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<string>();
-  const [promoError, setPromoError] = useState<string>();
-  const applyPromo = () => {
-    const code = promoInput.trim().toUpperCase();
-    if (!code) return;
-    if (DEMO_PROMOS[code]) { setAppliedPromo(code); setPromoError(undefined); }
-    else { setPromoError('Mã khuyến mãi không hợp lệ hoặc đã hết hạn.'); setAppliedPromo(undefined); }
-  };
-  const clearPromo = () => { setPromoInput(''); setAppliedPromo(undefined); setPromoError(undefined); };
+  const greenVoucherId = voucherSelection?.customerId === cart.customerId ? voucherSelection?.id : undefined;
 
   useEffect(() => {
     let live = true;
@@ -94,8 +61,6 @@ export function CheckoutPage() {
   }, [key, cart.ready, cart.items, cart.customerId, addressId, deliveryDate, deliverySlot, checkoutOptions, greenVoucherId]);
   const quote = quoteState.key === key ? quoteState.value : undefined;
   const requestError = quoteState.key === key ? quoteState.error : undefined;
-  const promoDiscount = quote ? calcPromoDiscount(greenVoucherId ? undefined : appliedPromo, quote.subtotalVnd, quote.shippingFeeVnd) : undefined;
-  const displayTotal = quote ? quote.totalVnd - (promoDiscount?.discountVnd || 0) : undefined;
   const place = async () => {
     if (!isPayment || !quote || submitting || !cart.ready) return;
     setSubmitting(true); setError(undefined);
@@ -136,41 +101,23 @@ export function CheckoutPage() {
         <div><span>Phí vận chuyển ước tính<br /><small>(dữ liệu demo)</small></span><strong>{money(quote.shippingFeeVnd)}</strong></div>
         <div><span>Bảo hiểm nông sản (0,5%)</span><strong>{money(quote.insuranceFeeVnd || 0)}</strong></div>
 
-        {!greenVoucherId && <div className="promo-code-section">
-          <label className="promo-code-label">🏷️ Mã khuyến mãi</label>
-          {appliedPromo ? (
-            <div className="promo-applied">
-              <span className="promo-applied-badge">✅ <strong>{appliedPromo}</strong> — {promoDiscount?.label}</span>
-              <button className="btn-text" type="button" onClick={clearPromo}>Xóa mã</button>
-            </div>
-          ) : (
-            <div className="promo-input-row">
-              <input
-                type="text"
-                placeholder="Nhập mã giảm giá"
-                value={promoInput}
-                disabled={submitting}
-                onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(undefined); }}
-                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }}
-              />
-              <button className="btn-secondary" type="button" disabled={submitting || !promoInput.trim()} onClick={applyPromo}>Áp dụng</button>
-            </div>
-          )}
-          {promoError && <small className="promo-error">{promoError}</small>}
-          <small className="promo-hint">Mã demo: FARMGO10, FREESHIP, WELCOME50</small>
-        </div>}
-
-        {promoDiscount && <div className="promo-discount-line"><span>Khuyến mãi ({promoDiscount.label})</span><strong>−{money(promoDiscount.discountVnd)}</strong></div>}
         {quote.shippingDiscountVnd !== undefined && <div className="promo-discount-line"><span>Voucher FARMGO Xanh</span><strong>−{money(quote.shippingDiscountVnd)}</strong></div>}
-        <div className="checkout-total"><span>Tổng cộng</span><strong>{money(displayTotal!)}</strong></div>
       </> : !requestError && <LoadingSpinner text="Đang cập nhật báo giá…" />}
-      {isPayment && <div className="green-picker-actions">
-        <button type="button" className="btn-secondary" disabled={!quote || submitting} onClick={() => { setVoucherDraft(greenVoucherId ?? ''); setVoucherOpen(true); }}>{greenVoucherId ? 'Đổi voucher' : 'Áp voucher'}</button>
-        {greenVoucherId && <button type="button" className="btn-secondary" disabled={submitting} onClick={() => setVoucherSelection(undefined)}>Bỏ voucher</button>}
-      </div>}
+      <section className="checkout-voucher">
+        <h3>Voucher vận chuyển</h3>
+        {greenVoucherId && <p>Đã chọn <strong>{greenVoucherId}</strong></p>}
+        <div className="green-picker-actions">
+          <button type="button" className="btn-secondary" disabled={!quote || submitting} onClick={() => {
+            setVoucherDraft(greenVoucherId ?? '');
+            setVoucherOpen(true);
+          }}>{greenVoucherId ? 'Đổi voucher' : 'Chọn voucher'}</button>
+          {greenVoucherId && <button type="button" className="btn-secondary" disabled={submitting} onClick={() => setVoucherSelection(undefined)}>Bỏ voucher</button>}
+        </div>
+      </section>
+      {quote && <div className="checkout-total"><span>Tổng cộng</span><strong>{money(quote.totalVnd)}</strong></div>}
       <p>Giá và phí được tính lại khi xác nhận đặt hàng.</p>{isPayment && <button className="btn-secondary" disabled={submitting} onClick={() => setSearchParams({})}>Quay lại kiểm tra đơn hàng</button>}<button className="btn-primary" disabled={submitting || !quote} onClick={isPayment ? place : () => { setSearchParams({step:'payment'}); window.scrollTo(0,0); }}>{submitting ? 'Đang tạo đơn…' : isPayment ? 'Xác nhận đặt hàng & thanh toán demo' : 'Tiếp tục thanh toán'}</button><small>Thanh toán và giữ tiền Escrow giả lập, không thu tiền thật.</small></section>
     </div>
-    {isPayment && voucherOpen && <GreenDialog title="Chọn voucher vận chuyển" close={() => setVoucherOpen(false)}>
+    {voucherOpen && <GreenDialog title="Chọn voucher vận chuyển" close={() => setVoucherOpen(false)}>
       {green.error && <ErrorMessage message={green.error} />}
       {!green.data && !green.error && <LoadingSpinner />}
       {green.data && !vouchers.length && <p>Chưa có voucher khả dụng. <Link to="/customer/green">Đến FARMGO Xanh</Link></p>}
@@ -181,7 +128,6 @@ export function CheckoutPage() {
       {!!vouchers.length && <div className="green-picker-actions"><button className="green-primary" type="button"
         disabled={!vouchers.some(row => row.id === voucherDraft)} onClick={() => {
           setVoucherSelection({ customerId: cart.customerId, id: voucherDraft });
-          clearPromo();
           setVoucherOpen(false);
         }}>Áp dụng</button></div>}
     </GreenDialog>}

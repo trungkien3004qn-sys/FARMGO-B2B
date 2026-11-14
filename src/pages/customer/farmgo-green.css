@@ -39,3 +39,8 @@ body:has(.green-dialog[open]) { overflow:hidden; }
 .green-dialog input[type="radio"] { width:20px; height:20px; accent-color:#087456; }
 .green-picker-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
 @media(max-width:440px) { .green-ticket { grid-template-columns:auto minmax(0,1fr); } .green-ticket > :last-child { grid-column:2; justify-self:start; } }
+
+.checkout-voucher { padding-block:12px; border-top:1px dashed #dbe8e2; }
+.checkout-voucher h3 { margin:0; font-size:1rem; }
+.checkout-voucher p { margin:6px 0 0; }
+.checkout-voucher .green-picker-actions { margin-top:8px; }
