@@ -7,9 +7,10 @@ export interface GreenPickup {
   expectedKg: number;
   appointment: string;
   address: string;
-  status: 'WAITING' | 'EN_ROUTE' | 'COMPLETE';
+  status: 'WAITING' | 'CONFIRMED' | 'EN_ROUTE' | 'COMPLETE';
   actualKg?: number;
   completedAt?: string;
+  receivedAt?: string;
 }
 export interface GreenVoucher {
   id: string;

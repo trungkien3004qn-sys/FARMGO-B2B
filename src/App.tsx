@@ -6,8 +6,12 @@ import { DemoModeBanner } from './components/shared/DemoModeBanner';
 import { RoleSelector } from './components/shared/RoleSelector';
 import { PhaseAdvancer } from './components/shared/PhaseAdvancer';
 import { AdminPortalApp, TransportPortalApp } from './pages/auth/PortalApps';
+import { HtxPortal } from './pages/HtxPortal';
 export default function App() {
   const location = useLocation();
+  if (location.pathname === '/htx' || location.pathname.startsWith('/htx/')) {
+    return <Routes><Route path="/htx/*" element={<HtxPortal />} /></Routes>;
+  }
   const customerPortal = location.pathname.startsWith('/customer') || location.pathname === '/';
   const isolatedPortal = location.pathname.startsWith('/admin') || location.pathname.startsWith('/transport');
   if (isolatedPortal) return <Routes><Route path="/admin/*" element={<AdminPortalApp/>}/><Route path="/transport/*" element={<TransportPortalApp/>}/><Route path="*" element={<Navigate to="/customer" replace/>}/></Routes>;

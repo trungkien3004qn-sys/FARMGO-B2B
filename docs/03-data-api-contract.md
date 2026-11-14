@@ -43,3 +43,9 @@ Hoàn tất lô đóng nhận xác nhận và cọc mới. Các khoản cọc ch
 Dữ liệu v5 bổ sung hai mảng tùy chọn `greenPickups` và `greenVouchers`, tách theo tài khoản mua. Yêu cầu thu gom chuyển `WAITING` → `EN_ROUTE` → `COMPLETE`. Xác nhận mô phỏng OTP/QR ghi khối lượng cân thực tế một lần. Mỗi kg nguyên đã bàn giao cộng 2.000 điểm. Đổi 50.000 hoặc 100.000 điểm lấy voucher vận chuyển cùng mệnh giá VND. Mã yêu cầu đổi voucher dùng để chống ghi lặp.
 
 `NewOrderInput.greenVoucherId` là tùy chọn. Báo giá kiểm tra quyền sở hữu và trạng thái voucher. `shippingDiscountVnd` bằng mức nhỏ hơn giữa phí giao và mệnh giá. Tổng đơn và khoản giữ Escrow giảm đúng số này. Khi đặt đơn thành công, voucher gắn với mã đơn trong cùng thao tác lưu. Mã voucher tham gia fingerprint chống lặp, và fingerprint của đơn cũ được giữ tương thích. Voucher dùng một lần, phần mệnh giá dư không chuyển sang đơn khác. Voucher FARMGO Xanh và mã khuyến mãi giao diện cũ không cộng dồn.
+
+## Cổng HTX Phân bón
+
+Quán đăng ký thu gom ở FARMGO Xanh. Cổng HTX mô phỏng xác nhận yêu cầu, điều xe và cân tại quán theo chuỗi WAITING → CONFIRMED → EN_ROUTE → COMPLETE. COMPLETE lưu số kg thực tế và thời điểm cộng điểm đúng một lần. Khi nhập xưởng, ghi thêm receivedAt trên cùng yêu cầu và không cộng lại điểm. Các bản ghi COMPLETE trước đây tiếp tục giữ điểm và chỉ tính vào lượng nhập xưởng khi có receivedAt.
+
+Dữ liệu thương mại HTX là phần mở rộng tùy chọn của bản lưu v5. Cổng dùng danh mục, tồn và đơn vật tư mẫu riêng. Khi chuyển đơn đang chờ sang đang giao, trừ tồn một lần. Doanh thu tính từ đơn đã giao. Cổng HTX là môi trường thao tác mô phỏng mở qua đường dẫn riêng.

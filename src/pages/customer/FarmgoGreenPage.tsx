@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import * as green from '../../services/greenService';
 import { organicTypes, type GreenPickup } from '../../types/green';
@@ -6,7 +7,7 @@ import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
 import { GreenDialog, VoucherTile } from './GreenVoucherDialog';
 
 const number = (value: number) => value.toLocaleString('vi-VN');
-const statuses = { WAITING: 'Đang chờ gom', EN_ROUTE: 'Xe đang tới', COMPLETE: 'Hoàn tất' };
+const statuses = { WAITING: 'Đang chờ gom', CONFIRMED: 'Đã xác nhận', EN_ROUTE: 'Xe đang tới', COMPLETE: 'Hoàn tất' };
 const appointmentLabel = (value: string) => value.slice(11) + ' · ' + value.slice(0, 10).split('-').reverse().join('/');
 
 export function FarmgoGreenPage() {
@@ -14,7 +15,6 @@ export function FarmgoGreenPage() {
   const [filter, setFilter] = useState<keyof typeof statuses | 'all'>('all');
   const [expected, setExpected] = useState('');
   const [voucherOpen, setVoucherOpen] = useState(false);
-  const [handover, setHandover] = useState<GreenPickup>();
   const [notice, setNotice] = useState('');
   const [dialogError, setDialogError] = useState('');
   const lock = useRef(false);
@@ -27,14 +27,14 @@ export function FarmgoGreenPage() {
     if (lock.current) return;
     lock.current = true;
     setDialogError('');
-    try { await action(); setNotice(success); setHandover(undefined); }
+    try { await action(); setNotice(success); }
     catch (failure) { setDialogError(failure instanceof Error ? failure.message : 'Không lưu được dữ liệu.'); }
     finally { lock.current = false; }
   }
   return <div className="green-page">
     <header className="green-banner"><div><h1>FARMGO Xanh</h1><p>{account.customerName} · Thu gom bã hữu cơ</p><strong>1 kg = 2.000 Điểm Xanh · 2.000 đ giảm phí giao</strong></div>
       <button className="green-redeem" onClick={() => { setDialogError(''); setVoucherOpen(true); }}>Đổi voucher</button></header>
-    <p className="green-muted">Thu gom, xác nhận và ưu đãi mô phỏng</p>
+    <p className="green-muted">Thu gom và ưu đãi mô phỏng · <Link to="/htx">Cổng HTX Phân bón</Link></p>
     {error && <ErrorMessage message={error} />}
     {notice && <p role="status">{notice}</p>}
     <div className="green-metrics">
@@ -72,11 +72,9 @@ export function FarmgoGreenPage() {
       <section className="green-card" key={group.title}><h2>{group.title}</h2>
         {!group.rows.length && <p className="green-muted">Chưa có yêu cầu trong mục này.</p>}
         {group.rows.map(row => <article className="green-pickup" data-status={row.status} key={row.id}>
-          <div><strong>{row.id} · {statuses[row.status]}</strong><p>{row.types.join(' · ')}</p>
+          <div><strong>{row.id} · {row.receivedAt ? 'Đã nhập xưởng' : statuses[row.status]}</strong><p>{row.types.join(' · ')}</p>
             <p>{row.status === 'COMPLETE' ? appointmentLabel(new Date(Date.parse(row.completedAt!) + 7 * 3600000).toISOString().slice(0, 16)) : appointmentLabel(row.appointment)} · {row.address}</p>
             <p>{number(row.actualKg ?? row.expectedKg)} kg · {row.status === 'COMPLETE' ? '+' : 'Dự kiến '}{number((row.actualKg ?? row.expectedKg) * green.greenRate)} điểm</p></div>
-          {row.status === 'WAITING' && <button disabled={busy} onClick={() => void run(() => green.dispatchGreenPickup(row.id))}>Mô phỏng xe đang tới</button>}
-          {row.status === 'EN_ROUTE' && <button className="green-primary" onClick={() => { setDialogError(''); setHandover(row); }}>Xác nhận bàn giao</button>}
         </article>)}
       </section>)}
     {!!account.vouchers.length && <section className="green-card"><h2>Voucher của tôi</h2>{account.vouchers.map(row =>
@@ -88,19 +86,6 @@ export function FarmgoGreenPage() {
         disabled={account.points < value} onClick={() => void dialogAction(() => green.redeemGreenVoucher(account.customerId, value, crypto.randomUUID()), 'Đã đổi voucher vận chuyển.')}>Đổi ngay</button>}>
         Cần {number(value)} điểm{account.points < value && <div>Thiếu {number(value - account.points)} điểm</div>}
       </VoucherTile>)}
-    </GreenDialog>}
-    {handover && <GreenDialog title="Xác nhận bàn giao bã hữu cơ" close={() => setHandover(undefined)}>
-      {dialogError && <ErrorMessage message={dialogError} />}
-      <form className="green-form" onSubmit={event => {
-        event.preventDefault();
-        const fields = new FormData(event.currentTarget);
-        const method = (event.nativeEvent as SubmitEvent).submitter?.getAttribute('value') === 'QR' ? 'QR' : 'OTP';
-        void dialogAction(() => green.completeGreenPickup(handover.id, Number(fields.get('actual')), method, String(fields.get('otp'))), 'Đã bàn giao và cộng Điểm Xanh.');
-      }}>
-        <label>Khối lượng cân thực tế (kg)<input name="actual" type="number" min="1" required defaultValue={handover.expectedKg} /></label>
-        <label>Mã OTP mô phỏng<input name="otp" inputMode="numeric" maxLength={6} /></label><p>Mã thử {green.greenOtp}</p>
-        <div className="green-tabs"><button className="green-primary" value="OTP">Xác nhận OTP</button><button value="QR">Mô phỏng quét QR</button></div>
-      </form>
     </GreenDialog>}
   </div>;
 }

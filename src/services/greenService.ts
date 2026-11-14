@@ -48,18 +48,40 @@ export async function registerGreenPickup(customerId: string, input: PickupInput
   });
 }
 
+export async function getHtxPickups() {
+  const state = readState();
+  return (state.greenPickups ?? []).map(row => ({
+    ...row, customerName: state.customers.find(customer => customer.id === row.customerId)?.businessName ?? row.customerId,
+  })).reverse();
+}
+
+export async function confirmGreenPickup(id: string) {
+  return update(state => {
+    const pickup = entity(state.greenPickups ?? [], id);
+    check(pickup.status === 'WAITING', 'Yêu cầu không còn chờ xác nhận.');
+    pickup.status = 'CONFIRMED';
+  });
+}
+
 export async function dispatchGreenPickup(id: string) {
   return update(state => {
     const pickup = entity(state.greenPickups ?? [], id);
-    actor(state, 'CUSTOMER', pickup.customerId);
-    if (pickup.status === 'WAITING') pickup.status = 'EN_ROUTE';
+    check(pickup.status === 'CONFIRMED', 'Xác nhận yêu cầu trước khi điều xe.');
+    pickup.status = 'EN_ROUTE';
+  });
+}
+
+export async function receiveGreenPickup(id: string) {
+  return update(state => {
+    const pickup = entity(state.greenPickups ?? [], id);
+    check(pickup.status === 'COMPLETE', 'Cần kiểm đếm trước khi nhập xưởng.');
+    pickup.receivedAt ??= state.demoNow;
   });
 }
 
 export async function completeGreenPickup(id: string, kg: number, method: 'OTP' | 'QR', code = '') {
   return update(state => {
     const pickup = entity(state.greenPickups ?? [], id);
-    actor(state, 'CUSTOMER', pickup.customerId);
     if (pickup.status === 'COMPLETE') return pickup;
     check(pickup.status === 'EN_ROUTE' && validKg(kg), 'Cần nhập khối lượng cân thực tế hợp lệ khi xe đang tới.');
     check(method === 'QR' || (method === 'OTP' && code === greenOtp), 'Mã OTP mô phỏng chưa đúng.');
