@@ -16,6 +16,7 @@ const stages = [
   ['COMPLETE', 'Kiểm đếm thành công', 'Đã cộng Điểm Xanh, đang chờ nhập xưởng.'],
   ['RECEIVED', 'Hoàn tất đơn hàng', 'Khối lượng thực tế đã nhập xưởng.'],
 ] as const;
+const pickupIcons = ['◷', '✓', '⇢', '⚖', '⌂'];
 const orderLabels = { PENDING: 'Chờ xử lý', SHIPPING: 'Đang giao', DELIVERED: 'Đã giao', CANCELLED: 'Đã hủy' };
 const num = (value: number) => value.toLocaleString('vi-VN');
 const time = (value: string) => new Date(value).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -47,16 +48,16 @@ function Dispatch({ rows, busy, run }: { rows: Pickup[]; busy: boolean; run: Run
   const [filter, setFilter] = useState('all');
   const filtered = rows.filter(row => filter === stageOf(row));
   return <>
-    <header className="htx-heading"><h1>Bảng tin Điều phối thu gom</h1><p>Theo dõi từ lúc quán đăng ký đến khi bã hữu cơ được nhập xưởng.</p></header>
+    <header className="htx-heading"><span className="htx-kicker">Vận hành thu gom tuần hoàn</span><h1>Bảng tin Điều phối thu gom</h1><p>Theo dõi từ lúc quán đăng ký đến khi bã hữu cơ được nhập xưởng.</p></header>
     <div className="htx-tabs" aria-label="Trạng thái thu gom" role="group">
       <button aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>Tổng quan</button>
       {stages.map(([id, title]) => <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{title} · {rows.filter(row => stageOf(row) === id).length}</button>)}
     </div>
     {filter === 'all' ? <>
-      <div className="htx-metrics">{stages.map(([id, title, note]) =>
-        <button key={id} onClick={() => setFilter(id)}><strong>{rows.filter(row => stageOf(row) === id).length}</strong><b>{title}</b><span>{note}</span></button>)}</div>
+      <div className="htx-metrics">{stages.map(([id, title, note], index) =>
+        <button key={id} data-stage={id} onClick={() => setFilter(id)}><span className="htx-metric-top"><i aria-hidden="true">{pickupIcons[index]}</i><span>Xem danh sách →</span></span><strong>{rows.filter(row => stageOf(row) === id).length}</strong><b>{title}</b><span>{note}</span></button>)}</div>
       <section className="htx-card"><h2>Luồng xử lý đơn thu gom</h2>
-        <ol className="htx-workflow">{stages.map(([id, title, note]) => <li key={id}><b>{title}</b><span>{note}</span></li>)}</ol>
+        <ol className="htx-workflow">{stages.map(([id, title, note], index) => <li key={id} data-stage={id}><b>Bước {index + 1} · {title}</b><span>{note}</span></li>)}</ol>
       </section>
     </>
       : <section className="htx-card"><h2>{stages.find(([id]) => id === filter)?.[1]}</h2>
@@ -75,11 +76,11 @@ function Recovery({ rows }: { rows: Pickup[] }) {
   const received = weighed.filter(row => row.receivedAt);
   const sumKg = (values: Pickup[]) => values.reduce((sum, row) => sum + (row.actualKg ?? 0), 0);
   return <>
-    <header className="htx-heading"><h1>Lượng thu hồi tại nhà máy HTX</h1><p>Đối soát khối lượng đã cân, đã nhập xưởng và Điểm Xanh đã cấp.</p></header>
+    <header className="htx-heading"><span className="htx-kicker">Đối soát khối lượng và Điểm Xanh</span><h1>Lượng thu hồi tại nhà máy HTX</h1><p>Đối soát khối lượng đã cân, đã nhập xưởng và Điểm Xanh đã cấp.</p></header>
     <div className="htx-metrics">{[
       ['Đã cân tại quán', num(sumKg(weighed)) + ' kg'], ['Đang chở về', num(sumKg(weighed) - sumKg(received)) + ' kg'],
       ['Đã nhập xưởng', num(sumKg(received)) + ' kg'], ['Điểm Xanh đã cấp', num(sumKg(weighed) * green.greenRate)],
-    ].map(([label, value]) => <div key={label}><strong>{value}</strong><b>{label}</b></div>)}</div>
+    ].map(([label, value]) => <div key={label}><b>{label}</b><strong>{value}</strong></div>)}</div>
     <div className="htx-grid htx-recovery">
       <section className="htx-card"><h2>Nhật ký nhập xưởng</h2>
         {!received.length && <p>Chưa có chuyến nhập xưởng.</p>}
@@ -124,8 +125,8 @@ function Store({ products, busy, run }: { products: HtxProduct[]; busy: boolean;
       </form>
     </section>}
     <div className="htx-grid htx-products">{products.map(product => <article className="htx-card" key={product.id}>
-      <div className="htx-product-image">{product.imageUrl ? <img src={product.imageUrl} alt={product.name} loading="lazy" /> : <span>{product.category}</span>}</div>
-      <small>{product.active ? 'Đang mở bán' : 'Đã ẩn'}</small><h2>{product.name}</h2><p>{product.description}</p>
+      <div className="htx-product-image">{product.imageUrl ? <img src={product.imageUrl} alt={product.name} loading="lazy" /> : <strong>{product.name}</strong>}<span className="htx-product-category">{product.category}</span><span className="htx-product-status" data-active={product.active}>{product.active ? 'Đang mở bán' : 'Đã ẩn'}</span></div>
+      <h2>{product.name}</h2><p className="htx-product-description">{product.description}</p>
       <p>{product.packaging} · Tồn kho {num(product.stock)}</p><strong>{money(product.priceVnd)}</strong>
       <div className="htx-actions"><button onClick={() => setEdit(product)}>Sửa</button><button disabled={busy} onClick={() => void run(() => shop.setHtxProductActive(product.id, !product.active))}>{product.active ? 'Ẩn' : 'Mở bán lại'}</button></div>
     </article>)}</div>
@@ -138,13 +139,14 @@ function Orders({ orders, now, busy, run }: { orders: HtxOrder[]; now: string; b
   const revenue = orders.filter(row => row.status === 'DELIVERED').reduce((sum, row) => sum + row.quantity * row.priceVnd, 0);
   const day = (value: string) => new Date(value).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
   return <>
-    <header className="htx-heading"><h1>Quản lý đơn hàng nông nghiệp</h1><p>{orders.filter(row => day(row.placedAt) === day(now)).length} đơn hôm nay · Doanh thu đơn đã giao <strong>{money(revenue)}</strong></p></header>
+    <header className="htx-heading htx-orders-heading"><div><h1>Quản lý đơn hàng nông nghiệp</h1><p>Theo dõi đơn vật tư và doanh thu từ đơn đã giao.</p></div>
+      <div className="htx-order-metrics"><div><span>Đơn hôm nay</span><strong>{orders.filter(row => day(row.placedAt) === day(now)).length} đơn</strong></div><div><span>Doanh thu đơn đã giao</span><strong>{money(revenue)}</strong></div></div></header>
     <div className="htx-tabs" role="group" aria-label="Lọc đơn vật tư">
       {[['all', 'Tất cả đơn'], ...Object.entries(orderLabels)].map(([id, label]) => <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}
     </div>
     <div className="htx-table"><table><thead><tr>{['Mã đơn', 'Nhà vườn', 'Sản phẩm', 'Số lượng', 'Đơn giá', 'Thành tiền', 'Ngày đặt', 'Trạng thái', 'Thao tác'].map(label => <th key={label}>{label}</th>)}</tr></thead>
       <tbody>{rows.map(row => <tr key={row.id}>
-        <td>{row.id}</td><td>{row.customer}</td><td>{row.productName}</td><td>{row.quantity}</td><td>{money(row.priceVnd)}</td><td>{money(row.quantity * row.priceVnd)}</td><td>{time(row.placedAt)}</td><td><b>{orderLabels[row.status]}</b></td>
+        <td>{row.id}</td><td>{row.customer}</td><td>{row.productName}</td><td>{row.quantity}</td><td>{money(row.priceVnd)}</td><td>{money(row.quantity * row.priceVnd)}</td><td>{time(row.placedAt)}</td><td><b className="htx-order-status" data-status={row.status}>{orderLabels[row.status]}</b></td>
         <td><div className="htx-actions">{row.status === 'PENDING' && <>
           <button disabled={busy} onClick={() => void run(() => shop.advanceHtxOrder(row.id, 'SHIPPING'))}>Xử lý</button>
           <button disabled={busy} onClick={() => void run(() => shop.advanceHtxOrder(row.id, 'CANCELLED'))}>Hủy đơn</button>
@@ -160,9 +162,11 @@ export function HtxPortal() {
   });
   return <div className="htx-layout">
     <aside><Link className="htx-brand" to="/htx">FARMGO <span>HTX</span></Link><p>Vận hành thu gom tuần hoàn</p>
+      <div className="htx-identity"><span aria-hidden="true">HTX</span><strong>HTX Phân bón FARMGO</strong></div>
       <nav aria-label="Điều hướng HTX">
-        <NavLink to="/htx" end>Điều phối thu gom</NavLink><NavLink to="/htx/recovery">Lượng thu hồi được</NavLink>
-        <NavLink to="/htx/store">Gian hàng của tôi</NavLink><NavLink to="/htx/orders">Quản lý đơn hàng</NavLink>
+        <small>Vận hành & tuần hoàn</small>
+        <NavLink to="/htx" end>Điều phối thu gom {!!data?.pickups.some(row => row.status === 'WAITING') && <b>{data.pickups.filter(row => row.status === 'WAITING').length}</b>}</NavLink><NavLink to="/htx/recovery">Lượng thu hồi được</NavLink>
+        <small>Thương mại đầu ra</small><NavLink to="/htx/store">Gian hàng của tôi</NavLink><NavLink to="/htx/orders">Quản lý đơn hàng</NavLink>
       </nav><Link to="/customer/green">Về FARMGO Xanh</Link>
     </aside>
     <main><p className="htx-context">Cổng HTX Phân bón · Dữ liệu và thao tác mô phỏng</p>
