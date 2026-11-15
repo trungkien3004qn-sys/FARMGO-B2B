@@ -95,3 +95,7 @@ body:has(.harvest-dialog[open]) { overflow:hidden; }
   .harvest-grid,.harvest-seller .harvest-lot,.harvest-detail-grid,.harvest-form { grid-template-columns:minmax(0,1fr); }
   .harvest-seller .harvest-lot > .harvest-photo { margin:0; border-radius:0; }
 }
+
+@media (max-width: 700px) {
+  .harvest-dates { align-items:flex-start; }
+}

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import * as green from '../../services/greenService';
+import { getCustomers, setDemoSession } from '../../services/demoService';
 import { organicTypes, type GreenPickup } from '../../types/green';
 import { useDemoData } from '../../components/shared/useDemoData';
 import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
@@ -11,7 +12,10 @@ const statuses = { WAITING: 'Đang chờ gom', CONFIRMED: 'Đã xác nhận', EN
 const appointmentLabel = (value: string) => value.slice(11) + ' · ' + value.slice(0, 10).split('-').reverse().join('/');
 
 export function FarmgoGreenPage() {
-  const { data, error, run, busy } = useDemoData(green.getGreenAccount);
+  const { data, error, run, busy } = useDemoData(async () => {
+    const [account, customers] = await Promise.all([green.getGreenAccount(), getCustomers()]);
+    return { ...account, customers };
+  });
   const [filter, setFilter] = useState<keyof typeof statuses | 'all'>('all');
   const [expected, setExpected] = useState('');
   const [voucherOpen, setVoucherOpen] = useState(false);
@@ -35,6 +39,13 @@ export function FarmgoGreenPage() {
     <header className="green-banner"><div><h1>FARMGO Xanh</h1><p>{account.customerName} · Thu gom bã hữu cơ</p><strong>1 kg = 2.000 Điểm Xanh · 2.000 đ giảm phí giao</strong></div>
       <button className="green-redeem" onClick={() => { setDialogError(''); setVoucherOpen(true); }}>Đổi voucher</button></header>
     <p className="green-muted">Thu gom và ưu đãi mô phỏng · <Link to="/htx">Cổng HTX Phân bón</Link></p>
+    <label className="green-account-picker">Tài khoản mua mô phỏng <select value={account.customerId} disabled={busy} onChange={event => {
+      const activeCustomerId = event.target.value;
+      setNotice('');
+      setExpected('');
+      setFilter('all');
+      void run(() => setDemoSession({ activeCustomerId }));
+    }}>{account.customers.map(customer => <option key={customer.id} value={customer.id}>{customer.businessName}</option>)}</select></label>
     {error && <ErrorMessage message={error} />}
     {notice && <p role="status">{notice}</p>}
     <div className="green-metrics">

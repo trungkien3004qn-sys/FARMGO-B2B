@@ -1,4 +1,5 @@
 import { addCustomerProducts } from '../mocks/customerMerchandising';
+import { addMarketShowcase } from '../mocks/marketShowcase';
 import { createSeed, addAdminOperationsShowcase, addAdminShowcaseProducts, addAdminShowcaseProfiles, addGovernance, commodities, type DemoState } from '../mocks/seed';
 import type { DemoDataEvent, ProductListing } from '../types/index';
 
@@ -62,6 +63,7 @@ function current(): DemoState {
   addAdminShowcaseProfiles(reconciled);
   addAdminOperationsShowcase(reconciled);
   addCustomerProducts(reconciled);
+  addMarketShowcase(reconciled);
   if (JSON.stringify(reconciled) !== before) {
     storage()?.setItem(KEY, JSON.stringify(reconciled));
     state = reconciled;

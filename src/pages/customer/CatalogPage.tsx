@@ -1,3 +1,4 @@
+import { ProductCardFacts } from './ProductCardFacts';
 import { ProductCondition } from './ProductCondition';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -29,7 +30,7 @@ export function CatalogPage() {
   const suppliers = [...new Map(products.map(product => [product.supplier.id, product.supplier])).values()];
   const areas = [...new Set(products.map(product => product.supplier.regionLabel).filter((value): value is string => Boolean(value)))];
   const visible = products.filter(product => (!category || product.category === category) && (!supplier || product.supplierId === supplier) &&
-    (!rating || (productRatings[product.commodityId]?.score ?? 0) >= Number(rating)) &&
+    (!rating || ((productRatings[product.id] ?? productRatings[product.commodityId])?.score ?? 0) >= Number(rating)) &&
     (!ripeness || (productConditions[product.id] || '').toLocaleLowerCase('vi').includes(ripeness.toLocaleLowerCase('vi'))) &&
     (!priceBand || (priceBand === 'low' ? product.publicPricePerKg < 30000 : priceBand === 'mid' ? product.publicPricePerKg >= 30000 && product.publicPricePerKg < 60000 : product.publicPricePerKg >= 60000)) &&
     (!area || product.supplier.regionLabel === area) &&
@@ -57,8 +58,8 @@ export function CatalogPage() {
       <div className="market-grid">{visible.map(product => { const qty = amounts[product.id] ?? 10; const count = products.filter(item => item.commodityId === product.commodityId).length;
         return <article key={product.id} className="market-card"><Link to={`/customer/products/${product.id}`} className="product-photo-link" aria-label={`Chi tiết ${product.name} từ ${product.supplier.name}`}><FruitPhoto id={product.commodityId} name={product.name} imageUrl={product.imageUrl} /></Link>
           <div className="market-card-body"><span className="product-category">{categoryLabels[product.category]}</span><h2><Link to={`/customer/products/${product.id}`}>{product.name}</Link></h2><ProductCondition id={product.id}/>
-            <p className="supplier-name">{product.supplier.name}</p><p className="product-origin">{product.originLabel || product.supplier.regionLabel || 'Chưa có vùng trồng'}{product.packagingLabel ? ` · ${product.packagingLabel}` : ''}</p>
-            <div className="market-price">{money(product.publicPricePerKg)}<small>/kg</small></div><span className="stock-label">{product.availableKg > 0 ? `Còn ${product.availableKg.toLocaleString('vi-VN')} kg` : 'Tạm hết hàng'}</span>
+            <p className="supplier-name">{product.supplier.name}</p><p className="product-origin">{product.packagingLabel}</p>
+            <div className="market-price">{money(product.publicPricePerKg)}<small>/kg</small></div><ProductCardFacts product={product} /><span className="stock-label">{product.availableKg > 0 ? `Còn ${product.availableKg.toLocaleString('vi-VN')} kg` : 'Tạm hết hàng'}</span>
             <div className="product-buy"><label className="sr-only" htmlFor={`qty-${product.id}`}>Số kg {product.name} từ {product.supplier.name}</label><input id={`qty-${product.id}`} type="number" min={1} max={product.availableKg} step={1} disabled={product.availableKg === 0} value={qty} onChange={event => setAmounts(previous => ({ ...previous, [product.id]: Number(event.target.value) }))} />
               <button className="btn-primary" disabled={!cart.ready || product.availableKg === 0 || !Number.isSafeInteger(qty) || qty < 1 || qty > product.availableKg} onClick={() => { if (cart.add(product.id, qty)) setMessage(`Đã thêm ${qty} kg ${product.name} — ${product.supplier.name}`); }}>Thêm vào giỏ</button></div>
             {count > 1 && <Link className="compare-link" to={`/customer/products/${product.id}#suppliers`}>So sánh {count} nhà cung cấp</Link>}

@@ -1,3 +1,4 @@
+import { HarvestDates } from '../components/shared/HarvestDates';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -166,12 +167,13 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
     {!lots.length && <p className="harvest-empty">Chưa có lô phù hợp.</p>}
     <div className="harvest-grid">
       {lots.map(row => <article key={row.id} className="harvest-lot" data-color={row.color} data-closed={!!row.completedAt}>
-        <header><span>{row.id}</span><strong>{row.title}</strong><small>{row.completedAt ? 'Đã hoàn tất' : 'Thu hoạch ' + day(row.harvestDate)}</small></header>
+        <header><span>{row.id}</span><strong>{row.title}</strong>{row.completedAt && <small>Đã hoàn tất</small>}</header>
         <LotPhoto lot={row} />
         <div className="harvest-lot-body">
           <h3>{row.productName}</h3>
           <p>{row.supplierName} · {row.region}</p>
-          <p><strong>{money(row.pricePerKg)}/kg</strong> · Đăng {day(row.postedAt)}</p>
+          <p><strong>{money(row.pricePerKg)}/kg</strong></p>
+          <HarvestDates postedAt={row.postedAt} harvestDate={row.harvestDate} />
           <LotStats lot={row} />
           <div className="harvest-actions">
             <button type="button" onClick={() => show({ kind: 'lot', id: row.id })}>Chi tiết lô hàng</button>
@@ -235,7 +237,7 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
       {lot && panel.kind === 'lot' && <>
         <div className="harvest-detail-grid">
           <div><LotPhoto lot={lot} /><section><h3>Nhà vườn</h3><p>{lot.supplierName} · {lot.region}</p></section></div>
-          <div><section><h3>Thông tin lô</h3><p>{lot.id} · {lot.title}</p><p>Thu hoạch dự kiến {day(lot.harvestDate)}</p></section>
+          <div><section><h3>Thông tin lô</h3><p>{lot.id} · {lot.title}</p><HarvestDates postedAt={lot.postedAt} harvestDate={lot.harvestDate} /></section>
             <section><h3>Sản phẩm</h3><p>{lot.productName} · {lot.grade}</p><p>Đăng {day(lot.postedAt)} · <b>{money(lot.pricePerKg)}/kg</b></p></section></div>
         </div>
         <LotStats lot={lot} />

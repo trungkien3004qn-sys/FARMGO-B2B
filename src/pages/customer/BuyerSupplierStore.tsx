@@ -1,3 +1,5 @@
+import { HarvestDates } from '../../components/shared/HarvestDates';
+import { ProductCardFacts } from './ProductCardFacts';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getSupplierPublicProfiles } from '../../services/demoService';
@@ -89,14 +91,14 @@ function SupplierStore({ supplierId }: { supplierId?: string }) {
       {sales.length ? <div className="sale-grid">{sales.map(({ product, reference }) => <Link className="sale-product" key={product.id} to={`/customer/products/${encodeURIComponent(product.id)}`}>
         <div className="sale-photo"><FruitPhoto id={product.commodityId} name={product.name} imageUrl={product.imageUrl} /></div>
         <strong>{product.name}</strong><div className="sale-price">{money(product.publicPricePerKg)}/kg <del>{money(reference)}/kg</del></div>
-        <small>Giá so sánh mẫu</small>
+        <ProductCardFacts product={product} /><small>Giá so sánh mẫu</small>
       </Link>)}</div> : <p>Chưa có sản phẩm giảm giá phù hợp.</p>}
     </section>}
     {(tab === 'all' || tab === 'preorders') && <section><h2>Đặt trước</h2>
       {lots.length ? <div className="sale-grid">{lots.map(lot => <article className="buyer-shop-lot" key={lot.id}>
         <div className="sale-photo"><FruitPhoto id={lot.productId} name={lot.productName} imageUrl={lot.imageUrl} /></div>
         <h3>{lot.title}</h3><strong>{money(lot.pricePerKg)}/kg</strong>
-        <p>Thu hoạch dự kiến {lot.harvestDate.split('-').reverse().join('/')}</p>
+        <HarvestDates postedAt={lot.postedAt} harvestDate={lot.harvestDate} />
         <p>{lot.remaining > 0 ? `Còn ${lot.remaining.toLocaleString('vi-VN')} kg` : 'Đã hết lượng nhận đặt'}</p>
         <Link to={`/customer/preorders?lot=${encodeURIComponent(lot.id)}`}>Chi tiết lô →</Link>
       </article>)}</div> : <p>Chưa có lô đặt trước phù hợp.</p>}

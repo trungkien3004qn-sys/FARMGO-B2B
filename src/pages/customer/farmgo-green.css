@@ -14,6 +14,8 @@
 .green-metrics strong { font-size:clamp(1.3rem,3vw,1.9rem); color:#087456; }
 .green-metrics section:first-child strong { color:#976100; }
 .green-muted { color:#50695e; }
+.green-account-picker { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.green-account-picker select { max-width:100%; min-height:44px; padding:6px 10px; border:1px solid #a7bcb3; border-radius:8px; background:white; color:inherit; font:inherit; }
 .green-tabs { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
 .green-card { margin-bottom:14px; }
 .green-form,.green-form label { display:grid; gap:8px; }

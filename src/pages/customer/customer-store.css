@@ -242,3 +242,11 @@
 @media (max-width: 540px) {
   .store-side-banners { grid-template-columns: minmax(0, 1fr); }
 }
+
+.store-showcase { max-width:1180px; margin-inline:auto; }
+.market-card-facts { display:grid; gap:3px; margin:7px 0; color:#506458; font-size:.875rem; }
+.market-card-facts > div { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; }
+.market-card-facts b span { color:#855909; }
+.market-card-facts small { color:inherit; font-size:.8rem; }
+.harvest-dates { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin:8px 0; color:#506458; font-size:.875rem; }
+.harvest-date-highlight { padding:4px 7px; border-radius:6px; background:#fff0e8; color:#8a3320; }
