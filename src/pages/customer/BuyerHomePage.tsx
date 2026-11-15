@@ -9,13 +9,20 @@ import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
 import { productRatings } from '../../mocks/productRatings';
 import { productConditions } from '../../mocks/customerMerchandising';
 
+const banners = [
+  { image: 'farmgo-circular.jpg', label: 'Nông sản lên quầy, phụ phẩm về vườn', href: '/customer/green' },
+  { image: 'farmgo-market.jpg', label: 'Nông sản đúng giá, kết nối đúng người', href: '/customer/catalog' },
+  { image: 'farmgo-delivery.jpg', label: 'Nguồn hàng từ vườn, đặt hàng tận nơi', href: '/customer/catalog' },
+  { image: 'farmgo-connection.jpg', label: 'Nơi những giá trị xanh được kết nối', href: '/customer/catalog' },
+] as const;
+
 export function BuyerHomePage() {
   const { products, loading, error, retry } = useCatalog();
   const [activeBanner, setActiveBanner] = useState(0);
   const [bannerPaused, setBannerPaused] = useState(false);
   useEffect(() => {
     if (bannerPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setInterval(() => setActiveBanner(current => (current + 1) % 3), 5000);
+    const timer = window.setInterval(() => setActiveBanner(current => (current + 1) % banners.length), 5000);
     return () => window.clearInterval(timer);
   }, [bannerPaused]);
   const [phone, setPhone] = useState('');
@@ -29,18 +36,15 @@ export function BuyerHomePage() {
     (!filter.ripeness || (productConditions[product.id] || '').toLocaleLowerCase('vi').includes(filter.ripeness.toLocaleLowerCase('vi'))) &&
     (!filter.price || (filter.price === 'low' ? product.publicPricePerKg < 30000 : filter.price === 'mid' ? product.publicPricePerKg >= 30000 && product.publicPricePerKg < 60000 : product.publicPricePerKg >= 60000)) &&
     (!filter.category || product.category === filter.category) && (!filter.area || product.supplier.regionLabel === filter.area));
-  const banners = [
-    { label: 'Nông sản từ nhà vườn', title: <>Tươi đúng độ.<br/>Ngon đúng lúc.</>, description: <>Chọn trái cây, rau củ cho quán.<br/>Biết độ chín trước khi đặt hàng.</>, link: 'Khám phá ngay', href: '/customer/catalog', fruitId: 'mango-cat-hoa-loc', fruitName: 'Xoài Cát Hòa Lộc', fruitState: 'Vừa chín tới', className: 'fresh' },
-    { label: 'Nguồn trái cây chọn lọc', title: <>Trái cây tươi.<br/>Chọn đúng mùa.</>, description: <>Khám phá nguồn hàng từ nhà vườn.<br/>Xem giá và tồn kho trong một nơi.</>, link: 'Xem trái cây', href: '/customer/catalog?category=FRESH_FRUIT', fruitId: 'avocado-sap', fruitName: 'Bơ sáp', fruitState: 'Dẻo thơm tự nhiên', className: 'fruit' },
-    { label: 'Nguyên liệu cho gian bếp', title: <>Rau củ xanh.<br/>Bếp luôn sẵn sàng.</>, description: <>Tìm rau củ cho thực đơn mỗi ngày.<br/>Đặt hàng dễ dàng cho quán F&B.</>, link: 'Xem rau củ', href: '/customer/catalog?category=VEGETABLES', fruitId: '', fruitName: 'Nông sản theo mùa', fruitState: 'Từ nhà vườn đến quán', className: 'vegetable' },
-  ];
   const banner = banners[activeBanner];
   return <>
     <section className="store-showcase" aria-label="Khám phá nông sản">
       <nav className="store-category-menu" aria-label="Danh mục nông sản"><Link to="/customer/catalog?category=VEGETABLES"><span>🥬</span> Rau củ quả <b>›</b></Link><Link to="/customer/catalog?category=FRESH_FRUIT"><span>🥭</span> Trái cây <b>›</b></Link><Link to="/customer/catalog"><span>🧺</span> Tất cả sản phẩm <b>›</b></Link></nav>
-      <div className={`store-main-banner store-main-banner-${banner.className}`} aria-label="Banner giới thiệu cửa hàng" aria-roledescription="carousel" onMouseEnter={() => setBannerPaused(true)} onMouseLeave={() => setBannerPaused(false)} onFocusCapture={() => setBannerPaused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setBannerPaused(false); }} onKeyDown={event => { if (event.key === 'ArrowRight') setActiveBanner(current => (current + 1) % banners.length); if (event.key === 'ArrowLeft') setActiveBanner(current => (current + banners.length - 1) % banners.length); }}>
-        <div className="store-banner-copy" aria-live="polite"><span>{banner.label}</span><h1>{banner.title}</h1><p>{banner.description}</p><Link to={banner.href}>{banner.link}</Link></div><div className={`store-banner-fruit ${banner.fruitId ? '' : 'store-banner-illustration'}`}>{banner.fruitId ? <FruitPhoto id={banner.fruitId} name={banner.fruitName}/> : <span className="banner-vegetable-art" aria-hidden="true">🥕🥬</span>}<span>{banner.fruitName}<br/><strong>{banner.fruitState}</strong></span></div><div className="store-banner-bottom">FARMGO — Kết nối nhà vườn và quán F&amp;B</div>
-        <div className="store-banner-controls" aria-label="Điều khiển banner"><button type="button" className="store-banner-arrow" aria-label="Banner trước" onClick={() => setActiveBanner(current => (current + banners.length - 1) % banners.length)}>‹</button><div className="store-banner-pagination">{banners.map((item, index) => <button key={item.className} type="button" className={index === activeBanner ? 'active' : ''} aria-label={`Chuyển đến banner ${index + 1}: ${item.label}`} aria-current={index === activeBanner ? 'true' : undefined} onClick={() => setActiveBanner(index)}/>)}</div><button type="button" className="store-banner-arrow" aria-label="Banner tiếp theo" onClick={() => setActiveBanner(current => (current + 1) % banners.length)}>›</button></div>
+      <div className="store-main-banner" aria-label="Banner giới thiệu cửa hàng" aria-roledescription="carousel" onMouseEnter={() => setBannerPaused(true)} onMouseLeave={() => setBannerPaused(false)} onFocusCapture={() => setBannerPaused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setBannerPaused(false); }} onKeyDown={event => { if (event.key === 'ArrowRight') setActiveBanner(current => (current + 1) % banners.length); if (event.key === 'ArrowLeft') setActiveBanner(current => (current + banners.length - 1) % banners.length); }}>
+        <Link className="store-banner-image" to={banner.href}>
+          <img src={import.meta.env.BASE_URL + 'banners/' + banner.image} alt={banner.label} width={1672} height={941} />
+        </Link>
+        <div className="store-banner-controls" aria-label="Điều khiển banner"><button type="button" className="store-banner-arrow" aria-label="Banner trước" onClick={() => setActiveBanner(current => (current + banners.length - 1) % banners.length)}>‹</button><div className="store-banner-pagination">{banners.map((item, index) => <button key={item.image} type="button" className={index === activeBanner ? 'active' : ''} aria-label={`Chuyển đến banner ${index + 1}: ${item.label}`} aria-current={index === activeBanner ? 'true' : undefined} onClick={() => setActiveBanner(index)}/>)}</div><button type="button" className="store-banner-arrow" aria-label="Banner tiếp theo" onClick={() => setActiveBanner(current => (current + 1) % banners.length)}>›</button></div>
       </div>
       <div className="store-side-banners"><Link to="/customer/catalog?category=FRESH_FRUIT" className="store-promo-fruit"><span>Nguồn hàng cho quán</span><strong>Trái cây tươi<br/>Chọn đúng độ chín</strong><span>Xem danh mục ›</span><span className="promo-illustration" aria-hidden="true">🥑</span></Link><Link to="/customer/catalog?category=VEGETABLES" className="store-promo-veg"><span>Cho bếp mỗi ngày</span><strong>Rau xanh<br/>Tươi ngon</strong><span>Khám phá rau củ ›</span><span className="promo-illustration" aria-hidden="true">🥬</span></Link></div>
     </section>

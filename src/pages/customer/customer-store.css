@@ -206,3 +206,13 @@
   .store-search-header .buyer-icon-nav { position:fixed; z-index:40; inset:auto 0 0; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:0; padding:4px 3px env(safe-area-inset-bottom); border-top:1px solid #dbe8e2; background:white; }
   .store-search-header .buyer-icon-nav a { min-height:53px; padding:3px 1px; white-space:normal; font-size:clamp(.65rem,2.6vw,.78rem); }
 }
+
+.store-showcase .store-main-banner { min-height:0; display:block; align-self:center; background:#eaf5ee; }
+.store-banner-image { display:block; }
+.store-banner-image img { display:block; width:100%; height:auto; }
+.store-main-banner .store-banner-controls { inset:0; transform:none; display:block; padding:0; pointer-events:none; }
+.store-main-banner .store-banner-arrow,.store-main-banner .store-banner-pagination { position:absolute; pointer-events:auto; }
+.store-main-banner .store-banner-arrow { top:50%; translate:0 -50%; }
+.store-main-banner .store-banner-arrow:first-child { left:10px; }
+.store-main-banner .store-banner-arrow:last-child { right:10px; }
+.store-main-banner .store-banner-pagination { bottom:7px; left:50%; translate:-50% 0; padding:0 8px; background:#10291bc2; border-radius:999px; }
