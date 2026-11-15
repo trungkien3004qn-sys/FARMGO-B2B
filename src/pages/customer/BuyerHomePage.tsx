@@ -124,6 +124,7 @@ export function BuyerHomePage() {
       <div className="store-footer-bottom">
         <span>© FARMGO · Kết nối nhà vườn và quán F&amp;B</span>
         <span>Thông tin liên hệ mẫu</span>
+        <a href={import.meta.env.BASE_URL + 'product-photos/credits.md'} target="_blank" rel="noreferrer">Nguồn ảnh sản phẩm</a>
       </div>
     </footer>
   </>;
