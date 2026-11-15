@@ -83,7 +83,7 @@ export function ProductDetailPage() {
                   <ProductSellerChat key={JSON.stringify([cart.customerId, product.supplierId, product.id])}
                     product={product} customerId={cart.customerId} />
                 )}
-                <Link to={`/customer/catalog?supplier=${encodeURIComponent(product.supplierId)}`}>Ghé gian hàng</Link>
+                <Link to={`/customer/stores/${encodeURIComponent(product.supplierId)}`}>Ghé gian hàng</Link>
               </div>
             </div>
 

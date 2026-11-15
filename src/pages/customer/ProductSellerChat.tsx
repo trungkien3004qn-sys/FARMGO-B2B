@@ -26,11 +26,12 @@ function readChat(key: string): ChatState {
   return { draft: '', messages: [] };
 }
 
-export function ProductSellerChat({ product, customerId }: {
-  product: CustomerProduct;
+export function ProductSellerChat({ product, customerId, supplier = product?.supplier }: {
+  product?: CustomerProduct;
+  supplier?: CustomerProduct['supplier'];
   customerId: string;
 }) {
-  const storageKey = 'farmgo-product-chat:' + JSON.stringify([customerId, product.supplierId, product.id]);
+  const storageKey = 'farmgo-product-chat:' + JSON.stringify([customerId, supplier?.id, product?.id ?? null]);
   const [chat, setChat] = useState(() => readChat(storageKey));
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -97,12 +98,12 @@ export function ProductSellerChat({ product, customerId }: {
         }}>
         <div className="seller-chat-shell">
           <header className="seller-chat-header">
-            <div><span>Chat với người bán</span><h2 id={titleId}>{product.supplier.name}</h2></div>
+            <div><span>Chat với người bán</span><h2 id={titleId}>{supplier?.name}</h2></div>
             <button type="button" className="seller-chat-close" aria-label="Đóng chat" autoFocus
               onClick={() => dialog.current?.close()}>×</button>
           </header>
 
-          <div className="seller-chat-product">
+          {product && <div className="seller-chat-product">
             <FruitPhoto id={product.commodityId} name={product.name} imageUrl={product.imageUrl} />
             <div>
               <strong>{product.name}</strong>
@@ -110,7 +111,7 @@ export function ProductSellerChat({ product, customerId }: {
                 ? 'Còn ' + product.availableKg.toLocaleString('vi-VN') + ' kg'
                 : 'Hết hàng'}</div>
             </div>
-          </div>
+          </div>}
 
           <p id={noticeId} className="seller-chat-notice">Tin nhắn chưa được gửi tới nhà cung cấp.</p>
           <div className="seller-chat-history" ref={history} role="log" aria-label="Tin nhắn" tabIndex={0}>
@@ -124,7 +125,7 @@ export function ProductSellerChat({ product, customerId }: {
             ))}
           </div>
           <div className="seller-chat-questions" role="group" aria-label="Câu hỏi gợi ý">
-            {questions.map(question => (
+            {(product ? questions : ['Nhà vườn đang có những mặt hàng nào?', 'Có thể giao khi nào?']).map(question => (
               <button type="button" key={question} onClick={() => {
                 setChat(current => ({ ...current, draft: question }));
                 composer.current?.focus();

@@ -1,0 +1,25 @@
+.buyer-shop { max-width: 1200px; margin-inline: auto; padding-bottom: 32px; }
+.buyer-shop-header { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 18px 24px; align-items: center; }
+.buyer-shop-identity { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 20px; border-radius: 14px; background: #143f2e; color: white; }
+.buyer-shop-identity h1 { margin: 0; color: white; font-size: clamp(1.25rem, 3vw, 1.7rem); }
+.buyer-shop-identity p { margin: 2px 0 0; color: #d4efe0; }
+.buyer-shop-avatar { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: #d4efe0; color: #124731; font-weight: 800; font-size: 1.5rem; }
+.buyer-shop-actions,.buyer-shop-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.buyer-shop-actions { flex-basis: 100%; }
+.buyer-shop-actions button,.buyer-shop-tabs button { min-height: 44px; }
+.buyer-shop-facts { display: flex; flex-wrap: wrap; gap: 12px 30px; margin: 0; }
+.buyer-shop-facts dt { color: #50685c; }
+.buyer-shop-facts dd { margin: 3px 0 0; font-weight: 700; color: #17643e; }
+.buyer-shop-header > label { display: grid; gap: 5px; font-weight: 650; }
+.buyer-shop-header input { min-height: 44px; width: 100%; padding: 8px 12px; border: 1px solid #b8cbbe; border-radius: 8px; }
+.buyer-shop-tabs { margin: 18px 0; border-bottom: 1px solid #dbe8df; }
+.buyer-shop-tabs button { background: transparent; color: #305843; padding: 7px 14px; border: 0; border-bottom: 3px solid transparent; cursor: pointer; }
+.buyer-shop-tabs button[aria-pressed="true"] { color: #087456; border-bottom-color: #087456; font-weight: 750; }
+.buyer-shop-banner { display: block; width: 100%; height: auto; border-radius: 14px; }
+.buyer-shop > section { margin-top: 24px; padding: 16px; border-radius: 12px; background: #f2f7f3; }
+.buyer-shop > section h2 { margin: 0 0 12px; }
+.buyer-shop .sale-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.buyer-shop-lot { padding: 10px; background: white; border-radius: 10px; }
+.buyer-shop-lot h3,.buyer-shop-lot p { margin: 6px 0; }
+.buyer-shop-lot a { color: #087456; font-weight: 700; }
+@media (max-width: 650px) { .buyer-shop-header { grid-template-columns: minmax(0, 1fr); } }

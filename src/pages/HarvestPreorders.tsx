@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import * as api from '../services/preorderService';
 import { useDemoData } from '../components/shared/useDemoData';
 import { ErrorMessage, LoadingSpinner } from '../components/shared/Feedback';
@@ -64,7 +65,12 @@ function OrderSummary({ order, lot, seller }: { order: Order; lot: Lot; seller?:
 
 export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
   const { data, error } = useDemoData(() => api.getPreorderMarket(seller ? 'seller' : 'buyer'));
-  const [panel, setPanel] = useState<Panel>();
+  const [localPanel, setPanel] = useState<Panel>();
+  const [params, setParams] = useSearchParams();
+  const linkedLot = seller ? undefined : data?.lots.find(row => row.id === params.get('lot') && !row.completedAt);
+  const linkedOrder = seller ? undefined : data?.orders.find(row => row.id === params.get('order'));
+  const panel: Panel | undefined = localPanel ?? (linkedLot ? { kind: 'lot', id: linkedLot.id }
+    : linkedOrder ? { kind: 'order', id: linkedOrder.id } : undefined);
   const [filter, setFilter] = useState('all');
   const [orderFilter, setOrderFilter] = useState('all');
   const [busy, setBusy] = useState(false);
@@ -78,6 +84,12 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
   const [copyMessage, setCopyMessage] = useState('');
 
   function show(next?: Panel) {
+    if (!seller && (params.has('lot') || params.has('order'))) {
+      const nextParams = new URLSearchParams(params);
+      nextParams.delete('lot');
+      nextParams.delete('order');
+      setParams(nextParams, { replace: true });
+    }
     setFormError('');
     setOtp('');
     setAccepted(false);

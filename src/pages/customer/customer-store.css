@@ -206,13 +206,27 @@
 .store-search-header .buyer-icon-nav { gap:4px; }
 .store-search-header .buyer-icon-nav a { display:grid; justify-items:center; align-content:center; min-height:46px; padding:4px 7px; gap:3px; border-radius:8px; color:#405c50; font-size:.8rem; font-weight:700; text-align:center; }
 .store-search-header .buyer-icon-nav a:hover,.store-search-header .buyer-icon-nav a.active { color:#087456; background:#e9f7ef; }
+.store-search-header .buyer-icon-nav > .buyer-notification-trigger { display:grid; justify-items:center; align-content:center; gap:3px; min-height:46px; padding:4px 7px; border-radius:8px; color:#405c50; font-size:.8rem; font-weight:700; line-height:inherit; white-space:normal; }
+.store-search-header .buyer-icon-nav > .buyer-notification-trigger:hover { color:#087456; background:#e9f7ef; }
+.buyer-notification-panel { position:fixed; inset:0; width:min(450px,calc(100% - 24px)); max-height:80dvh; margin:auto; padding:0; border:1px solid #dbe8df; border-radius:14px; color:#173b2b; background:white; }
+.buyer-notification-panel::backdrop { background:#142c226b; }
+.buyer-notification-body { padding:16px; }
+.buyer-notification-body header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+.buyer-notification-body h2 { margin:0; font-size:1.15rem; }
+.store-search-header .buyer-notification-body button { min-height:44px; padding:6px 10px; font-size:.9rem; }
+.buyer-notification-body ul { list-style:none; margin:12px 0 0; padding:0; }
+.buyer-notification-body li { border-top:1px solid #dbe8df; }
+.buyer-notification-body li[data-unread="true"] { background:#edf8f1; }
+.store-search-header .buyer-icon-nav .buyer-notification-body a { justify-items:start; text-align:left; white-space:normal; padding:8px; }
+.buyer-notification-body a span { margin:0; }
 .store-search-header .buyer-icon-nav .buyer-nav-icon { position:relative; display:grid; place-items:center; color:inherit; margin:0; }
 .buyer-nav-icon svg { width:22px; height:22px; }
 .buyer-nav-icon b { position:absolute; top:-5px; left:18px; min-width:16px; padding:0 3px; border-radius:9px; background:#087456; color:white; font-size:10px; }
 @media(max-width:700px) {
   .customer-store { padding-bottom:calc(68px + env(safe-area-inset-bottom)); }
-  .store-search-header .buyer-icon-nav { position:fixed; z-index:40; inset:auto 0 0; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:0; padding:4px 3px env(safe-area-inset-bottom); border-top:1px solid #dbe8e2; background:white; }
-  .store-search-header .buyer-icon-nav a { min-height:53px; padding:3px 1px; white-space:normal; font-size:clamp(.65rem,2.6vw,.78rem); }
+  .customer-app .demo-control-widget { bottom:calc(68px + env(safe-area-inset-bottom)); }
+  .store-search-header .buyer-icon-nav { position:fixed; z-index:40; inset:auto 0 0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:0; padding:4px 3px env(safe-area-inset-bottom); border-top:1px solid #dbe8e2; background:white; }
+  .store-search-header .buyer-icon-nav > a,.store-search-header .buyer-icon-nav > .buyer-notification-trigger { min-height:53px; padding:3px 1px; white-space:normal; font-size:clamp(.65rem,2.6vw,.78rem); }
 }
 
 .store-showcase .store-main-banner { min-height:0; display:block; align-self:center; background:#eaf5ee; }
