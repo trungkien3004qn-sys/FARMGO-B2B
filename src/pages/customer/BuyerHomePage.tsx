@@ -27,9 +27,6 @@ export function BuyerHomePage() {
     const timer = window.setInterval(() => setActiveBanner(current => (current + 1) % banners.length), 5000);
     return () => window.clearInterval(timer);
   }, [bannerPaused]);
-  const [phone, setPhone] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
-  const [phoneError, setPhoneError] = useState('');
   const [filter, setFilter] = useState({ distance: '', rating: '', ripeness: '', price: '', category: '', area: '' });
   const areas = [...new Set(products.map(product => product.supplier.regionLabel).filter((value): value is string => Boolean(value)))];
   const filteredProducts = products.filter(product =>
@@ -49,13 +46,6 @@ export function BuyerHomePage() {
         <div className="store-banner-controls" aria-label="Điều khiển banner"><button type="button" className="store-banner-arrow" aria-label="Banner trước" onClick={() => setActiveBanner(current => (current + banners.length - 1) % banners.length)}>‹</button><div className="store-banner-pagination">{banners.map((item, index) => <button key={item.image} type="button" className={index === activeBanner ? 'active' : ''} aria-label={`Chuyển đến banner ${index + 1}: ${item.label}`} aria-current={index === activeBanner ? 'true' : undefined} onClick={() => setActiveBanner(index)}/>)}</div><button type="button" className="store-banner-arrow" aria-label="Banner tiếp theo" onClick={() => setActiveBanner(current => (current + 1) % banners.length)}>›</button></div>
       </div>
       <div className="store-side-banners"><Link to="/customer/catalog?category=FRESH_FRUIT" className="store-promo-fruit"><span>Nguồn hàng cho quán</span><strong>Trái cây tươi<br/>Chọn đúng độ chín</strong><span>Xem danh mục ›</span></Link><Link to="/customer/catalog?category=VEGETABLES" className="store-promo-veg"><span>Cho bếp mỗi ngày</span><strong>Rau củ tươi<br/>Cho gian bếp</strong><span>Khám phá rau củ ›</span></Link></div>
-    </section>
-    <section className="zalo-promo-demo" aria-labelledby="zalo-promo-title">
-      <div><span className="zalo-promo-kicker">ƯU ĐÃI FARMGO</span><h2 id="zalo-promo-title">Nhận tin khuyến mãi qua Zalo</h2><p>Đăng ký nhận thông báo ưu đãi nông sản dành cho quán của bạn.</p><small>Mô phỏng demo — không kết nối Zalo thật, số điện thoại không được gửi đi hoặc lưu lại.</small></div>
-      <form onSubmit={event => { event.preventDefault(); const normalized = phone.replace(/[\s().-]/g, ''); if (!/^\+?\d{9,12}$/.test(normalized)) { setPhoneError('Vui lòng nhập số điện thoại hợp lệ (9–12 chữ số).'); setSubscribed(false); return; } setPhoneError(''); setSubscribed(true); }}>
-        <label htmlFor="zalo-promo-phone">Số điện thoại</label><div className="zalo-promo-input"><input id="zalo-promo-phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="Ví dụ: 0901234567" value={phone} onChange={event => { setPhone(event.target.value); setSubscribed(false); setPhoneError(''); }} aria-describedby="zalo-promo-status"/><button type="submit">Đăng ký nhận tin demo</button></div>
-        <div id="zalo-promo-status" aria-live="polite">{phoneError && <span className="zalo-promo-error">{phoneError}</span>}{subscribed && <span className="zalo-promo-success">Đăng ký demo thành công! Tin khuyến mãi mẫu: Ưu đãi nông sản tuần này — xem giá và tồn hàng đang mở bán trên FARMGO.</span>}</div>
-      </form>
     </section>
     {!loading && products.some(p => saleReferencePrice(p.id) > 0) && <section className="store-sale"><div className="sale-heading"><h2>FLASH SALE · Nông sản ưu đãi</h2><span>Giá so sánh mẫu · Mua theo giá hiện tại</span></div><div className="sale-grid">{products.filter(p => saleReferencePrice(p.id) > 0).map(product => { const original = saleReferencePrice(product.id); return <Link className="sale-product" key={product.id} to={`/customer/products/${product.id}`}><div className="sale-photo"><FruitPhoto id={product.commodityId} name={product.name} imageUrl={product.imageUrl}/>{original > product.publicPricePerKg && <b>-{Math.round((1-product.publicPricePerKg/original)*100)}%</b>}</div><strong>{product.name}</strong><div className="sale-price">{money(product.publicPricePerKg)}/kg {original > product.publicPricePerKg && <del>{money(original)}</del>}</div><ProductCardFacts product={product} /><small>{product.availableKg > 0 ? `Còn ${product.availableKg} kg` : 'Tạm hết hàng'}</small></Link>; })}</div></section>}
     <section className="home-catalog-section">

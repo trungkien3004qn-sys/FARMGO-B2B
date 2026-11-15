@@ -7,7 +7,7 @@ import type { DemoState } from '../mocks/seed';
 export const greenRate = 2000;
 export const greenVoucherValues = [50000, 100000] as const;
 export const greenOtp = '000000';
-type PickupInput = Pick<GreenPickup, 'types' | 'expectedKg' | 'appointment' | 'address'>;
+type PickupInput = Pick<GreenPickup, 'types' | 'otherType' | 'expectedKg' | 'appointment' | 'address'>;
 const validKg = (kg: number) => Number.isSafeInteger(kg) && kg > 0 && Number.isSafeInteger(kg * greenRate);
 export const updateGreenCheckout = <T>(action: (state: DemoState) => T) => {
   const save = () => mutate('DATA_CHANGED', action, true);
@@ -37,11 +37,13 @@ export async function registerGreenPickup(customerId: string, input: PickupInput
     actor(state, 'CUSTOMER', customerId);
     const { types, expectedKg, appointment, address } = input;
     const pickupTime = Date.parse(appointment + ':00+07:00');
-    check(types.length > 0 && types.every(type => organicTypes.includes(type)), 'Chọn loại bã hữu cơ.');
+    const otherType = input.otherType?.trim();
+    check(input.otherType === undefined || (otherType && otherType.length <= 100), 'Nhập loại bã khác từ 1 đến 100 ký tự.');
+    check((types.length > 0 || otherType) && types.every(type => organicTypes.includes(type)), 'Chọn hoặc nhập loại bã hữu cơ.');
     check(validKg(expectedKg) && address.trim(), 'Nhập khối lượng nguyên dương và địa chỉ.');
     check(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(appointment) && pickupTime > Date.parse(state.demoNow) &&
       new Date(pickupTime + 7 * 3600000).toISOString().slice(0, 16) === appointment, 'Chọn thời gian bàn giao hợp lệ trong tương lai.');
-    const row: GreenPickup = { ...input, types: [...new Set(types)], address: address.trim(),
+    const row: GreenPickup = { ...input, otherType, types: [...new Set(types)], address: address.trim(),
       id: `FG-XANH-${state.nextId++}`, customerId, status: 'WAITING' };
     (state.greenPickups ??= []).push(row);
     return row;

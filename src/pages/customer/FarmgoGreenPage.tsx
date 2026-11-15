@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import * as green from '../../services/greenService';
 import { getCustomers, setDemoSession } from '../../services/demoService';
-import { organicTypes, type GreenPickup } from '../../types/green';
+import { greenPickupTypes, organicTypes, type GreenPickup } from '../../types/green';
 import { useDemoData } from '../../components/shared/useDemoData';
 import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
 import { GreenDialog, VoucherTile } from './GreenVoucherDialog';
@@ -18,6 +18,7 @@ export function FarmgoGreenPage() {
   });
   const [filter, setFilter] = useState<keyof typeof statuses | 'all'>('all');
   const [expected, setExpected] = useState('');
+  const [otherSelected, setOtherSelected] = useState(false);
   const [voucherOpen, setVoucherOpen] = useState(false);
   const [notice, setNotice] = useState('');
   const [dialogError, setDialogError] = useState('');
@@ -43,6 +44,7 @@ export function FarmgoGreenPage() {
       const activeCustomerId = event.target.value;
       setNotice('');
       setExpected('');
+      setOtherSelected(false);
       setFilter('all');
       void run(() => setDemoSession({ activeCustomerId }));
     }}>{account.customers.map(customer => <option key={customer.id} value={customer.id}>{customer.businessName}</option>)}</select></label>
@@ -64,12 +66,16 @@ export function FarmgoGreenPage() {
       const fields = new FormData(element);
       const saved = await run(() => green.registerGreenPickup(account.customerId, {
         types: fields.getAll('types') as GreenPickup['types'], expectedKg: Number(fields.get('kg')),
+        otherType: otherSelected ? String(fields.get('otherType') ?? '') : undefined,
         appointment: String(fields.get('appointment')), address: String(fields.get('address')),
       }));
-      if (saved) { element.reset(); setExpected(''); setFilter('all'); setNotice('Đã đăng ký thu gom.'); }
+      if (saved) { element.reset(); setExpected(''); setOtherSelected(false); setFilter('all'); setNotice('Đã đăng ký thu gom.'); }
     }}>
       <h2>Đăng ký thu gom bã hữu cơ</h2>
-      <fieldset><legend>Loại bã hữu cơ</legend><div className="green-types">{organicTypes.map(type => <label key={type}><input type="checkbox" name="types" value={type} />{type}</label>)}</div></fieldset>
+      <fieldset><legend>Loại bã hữu cơ</legend><div className="green-types">
+        {organicTypes.map(type => <label key={type}><input type="checkbox" name="types" value={type} />{type}</label>)}
+        <label><input type="checkbox" checked={otherSelected} onChange={event => setOtherSelected(event.target.checked)} />Khác</label>
+      </div>{otherSelected && <label className="green-other-type">Nhập loại bã hữu cơ<input name="otherType" maxLength={100} required /></label>}</fieldset>
       <div className="green-fields">
         <label>Khối lượng dự kiến (kg)<input name="kg" type="number" min="1" value={expected} onChange={event => setExpected(event.target.value)} required /></label>
         <label>Thời gian bàn giao<input name="appointment" type="datetime-local" required /></label>
@@ -83,7 +89,7 @@ export function FarmgoGreenPage() {
       <section className="green-card" key={group.title}><h2>{group.title}</h2>
         {!group.rows.length && <p className="green-muted">Chưa có yêu cầu trong mục này.</p>}
         {group.rows.map(row => <article className="green-pickup" data-status={row.status} key={row.id}>
-          <div><strong>{row.id} · {row.receivedAt ? 'Đã nhập xưởng' : statuses[row.status]}</strong><p>{row.types.join(' · ')}</p>
+          <div><strong>{row.id} · {row.receivedAt ? 'Đã nhập xưởng' : statuses[row.status]}</strong><p>{greenPickupTypes(row).join(' · ')}</p>
             <p>{row.status === 'COMPLETE' ? appointmentLabel(new Date(Date.parse(row.completedAt!) + 7 * 3600000).toISOString().slice(0, 16)) : appointmentLabel(row.appointment)} · {row.address}</p>
             <p>{number(row.actualKg ?? row.expectedKg)} kg · {row.status === 'COMPLETE' ? '+' : 'Dự kiến '}{number((row.actualKg ?? row.expectedKg) * green.greenRate)} điểm</p></div>
         </article>)}

@@ -250,3 +250,12 @@
 .market-card-facts small { color:inherit; font-size:.8rem; }
 .harvest-dates { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin:8px 0; color:#506458; font-size:.875rem; }
 .harvest-date-highlight { padding:4px 7px; border-radius:6px; background:#fff0e8; color:#8a3320; }
+
+.customer-store .market-card :is(h2,h3) a,.customer-store .sale-product > strong { color:#172c22; }
+.customer-store .market-card :is(.supplier-name,.product-origin,.stock-label),.customer-store .market-card-facts,.customer-store .sale-product > small { color:#334b40; }
+.customer-store .market-card-facts b { color:#26362d; }
+.product-suggestion { display:flex; gap:5px; min-width:0; margin:4px 0; padding:6px 8px; border-radius:6px; background:#fff6df; color:#6d410f; font-size:.82rem; }
+.product-suggestion b { flex:none; }
+.product-suggestion span { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.product-suggestion.is-full { flex-wrap:wrap; }
+.product-suggestion.is-full span { overflow:visible; white-space:normal; }

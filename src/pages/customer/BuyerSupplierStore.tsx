@@ -12,6 +12,7 @@ import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
 import { StoreProductCard } from './StoreProductCard';
 import { ProductSellerChat } from './ProductSellerChat';
 import { saleReferencePrice } from './saleReferencePrices';
+import { productRatings } from '../../mocks/productRatings';
 import './buyer-supplier-store.css';
 
 const tabs = [['all', 'Tổng quan'], ['products', 'Tất cả sản phẩm'], ['sale', 'Đang giảm giá'], ['preorders', 'Đặt trước']] as const;
@@ -60,7 +61,14 @@ function SupplierStore({ supplierId }: { supplierId?: string }) {
     const reference = saleReferencePrice(product.id);
     return product.publicPricePerKg < reference ? [{ product, reference }] : [];
   });
-  const lots = shop.data.lots.filter(lot => lot.supplierId === supplier.id && !lot.completedAt && matches(lot.title, lot.productName, lot.id));
+  const openLots = shop.data.lots.filter(lot => lot.supplierId === supplier.id && !lot.completedAt);
+  const lots = openLots.filter(lot => matches(lot.title, lot.productName, lot.id));
+  const ratings = inventory.flatMap(product => {
+    const rating = productRatings[product.id];
+    return rating ? [rating] : [];
+  });
+  const ratingCount = ratings.reduce((total, rating) => total + rating.count, 0);
+  const ratingScore = ratingCount ? ratings.reduce((total, rating) => total + rating.score * rating.count, 0) / ratingCount : undefined;
   const accountKey = JSON.stringify([cart.customerId, supplier.id]);
 
   return <div className="buyer-shop">
@@ -75,7 +83,12 @@ function SupplierStore({ supplierId }: { supplierId?: string }) {
       </div>
       <dl className="buyer-shop-facts">
         <div><dt>Mặt hàng đang mở bán</dt><dd>{inventory.length}</dd></div>
+        <div><dt>Lô đang nhận đặt trước</dt><dd>{openLots.filter(lot => lot.remaining > 0).length}</dd></div>
         {supplier.regionLabel && <div><dt>Vùng trồng</dt><dd>{supplier.regionLabel}</dd></div>}
+        {supplier.publicAddress && supplier.publicAddress !== supplier.regionLabel && <div><dt>Địa chỉ công khai</dt><dd>{supplier.publicAddress}</dd></div>}
+        <div><dt>Đánh giá</dt><dd>{ratingScore === undefined ? 'Chưa có đánh giá' : `★ ${ratingScore.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} · ${ratingCount.toLocaleString('vi-VN')} lượt mẫu`}</dd></div>
+        {!!supplier.certifications?.length && <div><dt>Chứng nhận</dt><dd>{supplier.certifications.join(' · ')}</dd></div>}
+        {supplier.description && <div className="buyer-shop-description"><dt>Giới thiệu nhà vườn</dt><dd>{supplier.description}</dd></div>}
       </dl>
       <label>Tìm trong gian hàng<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
     </header>

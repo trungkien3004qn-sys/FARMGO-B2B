@@ -7,6 +7,7 @@ import { prepareProductPhoto } from '../components/shared/prepareProductPhoto';
 import * as green from '../services/greenService';
 import * as shop from '../services/htxService';
 import type { HtxOrder, HtxProduct } from '../types/htx';
+import { greenPickupTypes } from '../types/green';
 import './htx.css';
 
 const stages = [
@@ -64,7 +65,7 @@ function Dispatch({ rows, busy, run }: { rows: Pickup[]; busy: boolean; run: Run
         {!filtered.length && <p>Chưa có yêu cầu ở trạng thái này.</p>}
         {filtered.map(row => <article className="htx-row" key={row.id}><div>
           <small>{row.id}</small><h3>{row.customerName}</h3><p>{row.address}</p>
-          <p>{row.appointment.replace('T', ' · ')} · {row.types.join(', ')}</p>
+          <p>{row.appointment.replace('T', ' · ')} · {greenPickupTypes(row).join(' · ')}</p>
           <p>Dự kiến {num(row.expectedKg)} kg{row.actualKg !== undefined && ` · Đã cân ${num(row.actualKg)} kg`}</p>
         </div><PickupActions row={row} busy={busy} run={run} /></article>)}
       </section>}
@@ -84,7 +85,7 @@ function Recovery({ rows }: { rows: Pickup[] }) {
     <div className="htx-grid htx-recovery">
       <section className="htx-card"><h2>Nhật ký nhập xưởng</h2>
         {!received.length && <p>Chưa có chuyến nhập xưởng.</p>}
-        {received.map(row => <article className="htx-row" key={row.id}><div><b>{row.id} · {row.customerName}</b><p>{row.types.join(', ')}</p><p>{time(row.receivedAt!)}</p></div><strong>{num(row.expectedKg)} kg dự kiến · {num(row.actualKg!)} kg thực tế</strong></article>)}
+        {received.map(row => <article className="htx-row" key={row.id}><div><b>{row.id} · {row.customerName}</b><p>{greenPickupTypes(row).join(' · ')}</p><p>{time(row.receivedAt!)}</p></div><strong>{num(row.expectedKg)} kg dự kiến · {num(row.actualKg!)} kg thực tế</strong></article>)}
       </section>
       <section className="htx-card"><h2>Sổ Điểm Xanh đối tác F&B</h2>
         {!weighed.length && <p>Chưa có chuyến đã cân.</p>}

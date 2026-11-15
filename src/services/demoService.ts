@@ -129,7 +129,22 @@ export async function getSupplierListings(supplierId: string): Promise<T.Product
   const state = readState(); find(state.suppliers, supplierId); return state.products.filter(product => product.supplierId === supplierId);
 }
 export async function getCommodities(): Promise<T.Commodity[]> { return readState().commodities; }
-export async function getSupplierPublicProfiles(): Promise<T.SupplierPublicProfile[]> { return readState().suppliers.map(publicProfile); }
+const sampleStoreInfo: Partial<Record<string, { publicAddress: string; description: string }>> = {
+  'supplier-1': { publicAddress: 'Lâm Đồng', description: 'Nhà vườn cung ứng bơ theo mùa và rau củ cho các quán F&B.' },
+  'supplier-2': { publicAddress: 'Tiền Giang', description: 'Hợp tác xã cung ứng trái cây miền Tây theo mùa cho các quán F&B.' },
+};
+export async function getSupplierPublicProfiles(): Promise<T.SupplierPublicProfile[]> {
+  const state = readState();
+  return state.suppliers.map(supplier => {
+    const profile = state.profiles.find(row => row.id === supplier.id && row.role === 'SUPPLIER' && row.status === 'APPROVED');
+    const sample = sampleStoreInfo[supplier.id];
+    return {
+      ...publicProfile(supplier),
+      ...(sample?.publicAddress === supplier.regionLabel ? sample : sample ? { description: sample.description } : {}),
+      certifications: [...(profile?.certificateImage ? ['VSATTP'] : []), ...(profile?.vietGapImage ? ['VietGAP'] : [])],
+    };
+  });
+}
 export async function createProduct(input: T.NewProductInput): Promise<T.ProductListing> {
   return mutate('DATA_CHANGED', state => {
     find(state.suppliers, input.supplierId); find(state.commodities, input.commodityId);

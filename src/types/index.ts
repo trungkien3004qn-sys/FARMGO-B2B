@@ -71,7 +71,14 @@ export interface DeliveryAddress {
 export type ProductCategory = 'VEGETABLES' | 'FRESH_FRUIT';
 export type ProductUse = 'JUICE' | 'SMOOTHIE' | 'KITCHEN' | 'FRESH';
 export interface Commodity { id: string; name: string; category: ProductCategory; }
-export interface SupplierPublicProfile { id: string; name: string; regionLabel?: string; }
+export interface SupplierPublicProfile {
+  id: string;
+  name: string;
+  regionLabel?: string;
+  publicAddress?: string;
+  description?: string;
+  certifications?: string[];
+}
 export interface ProductListing {
   legacy?: boolean;
   id: string;

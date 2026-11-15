@@ -1,4 +1,5 @@
 import { ProductRating } from './ProductRating';
+import { ProductSuggestion } from './ProductSuggestion';
 import { ProductCondition } from './ProductCondition';
 import { ProductSellerChat } from './ProductSellerChat';
 import { calculateTrueCost } from '../../services/demoService';
@@ -61,6 +62,7 @@ export function ProductDetailPage() {
                 {product.uses.length ? `Phù hợp: ${product.uses.map(use => useLabels[use]).join(', ')}.` : 'Chưa bổ sung thông tin công dụng.'}
               </p>
               <ProductCondition id={product.id} />
+              <ProductSuggestion product={product} full />
             </aside>
           </div>
 

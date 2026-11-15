@@ -1,9 +1,12 @@
 export const organicTypes = ['Bã trái cây', 'Vỏ cam, chanh', 'Bã cà phê', 'Vỏ dứa'] as const;
 export type OrganicType = typeof organicTypes[number];
+export const greenPickupTypes = (pickup: Pick<GreenPickup, 'types' | 'otherType'>) =>
+  [...pickup.types, ...(pickup.otherType ? [pickup.otherType] : [])];
 export interface GreenPickup {
   id: string;
   customerId: string;
   types: OrganicType[];
+  otherType?: string;
   expectedKg: number;
   appointment: string;
   address: string;

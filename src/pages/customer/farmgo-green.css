@@ -23,6 +23,7 @@
 .green-form legend,.green-form label { font-weight:650; }
 .green-fields,.green-types { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr)); gap:8px; }
 .green-types label { display:flex; align-items:center; padding:8px; border:1px solid #dbe8e2; border-radius:8px; }
+.green-other-type { margin-top:8px; }
 .green-form input:not([type="checkbox"]) { min-height:44px; width:100%; min-width:0; box-sizing:border-box; padding:8px; border:1px solid #a7bcb3; border-radius:8px; font:inherit; }
 .green-form input[type="checkbox"] { accent-color:#087456; width:17px; height:17px; }
 .green-pickup,.green-ticket { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:8px; padding:12px; border:1px solid #dbe8e2; border-radius:10px; background:#f5faf8; overflow-wrap:anywhere; }
