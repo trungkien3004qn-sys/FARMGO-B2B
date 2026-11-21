@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'motion/react';
 import type { Role, DemoSession, Supplier, Customer } from '../../types';
 import {
   getDemoSession,
@@ -103,16 +104,50 @@ export function RoleSelector({ hideControls = false }: { hideControls?: boolean 
       <div className="role-switcher-pills">
         <button
           type="button"
-          className={`role-tab-btn ${activeRole === 'SUPPLIER' ? 'active' : ''}`} aria-pressed={activeRole === 'SUPPLIER'}
+          className={`role-tab-btn ${activeRole === 'SUPPLIER' ? 'active' : ''}`}
+          aria-pressed={activeRole === 'SUPPLIER'}
           onClick={() => handleRoleChange('SUPPLIER')}
+          style={{ position: 'relative' }}
         >
+          {activeRole === 'SUPPLIER' && (
+            <motion.div
+              layoutId="role-tab-indicator"
+              className="role-tab-active-indicator"
+              transition={{ type: 'spring', damping: 28, stiffness: 400 }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: '#ffffff',
+                borderRadius: '8px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                zIndex: -1,
+              }}
+            />
+          )}
           Nhà cung cấp
         </button>
         <button
           type="button"
-          className={`role-tab-btn ${activeRole === 'CUSTOMER' ? 'active' : ''}`} aria-pressed={activeRole === 'CUSTOMER'}
+          className={`role-tab-btn ${activeRole === 'CUSTOMER' ? 'active' : ''}`}
+          aria-pressed={activeRole === 'CUSTOMER'}
           onClick={() => handleRoleChange('CUSTOMER')}
+          style={{ position: 'relative' }}
         >
+          {activeRole === 'CUSTOMER' && (
+            <motion.div
+              layoutId="role-tab-indicator"
+              className="role-tab-active-indicator"
+              transition={{ type: 'spring', damping: 28, stiffness: 400 }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: '#ffffff',
+                borderRadius: '8px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                zIndex: -1,
+              }}
+            />
+          )}
           Bên mua F&B
         </button>
       </div>

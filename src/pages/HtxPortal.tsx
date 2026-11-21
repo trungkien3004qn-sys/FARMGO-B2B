@@ -9,6 +9,8 @@ import * as shop from '../services/htxService';
 import type { HtxOrder, HtxProduct } from '../types/htx';
 import { greenPickupTypes } from '../types/green';
 import './htx.css';
+import { AppIcon } from '../components/shared/AppIcon';
+import { LucideIcon, type IconName } from '../components/shared/LucideIcon';
 
 const stages = [
   ['WAITING', 'Chờ xác nhận', 'Kiểm tra yêu cầu thu gom của quán.'],
@@ -17,7 +19,7 @@ const stages = [
   ['COMPLETE', 'Kiểm đếm thành công', 'Đã cộng Điểm Xanh, đang chờ nhập xưởng.'],
   ['RECEIVED', 'Hoàn tất đơn hàng', 'Khối lượng thực tế đã nhập xưởng.'],
 ] as const;
-const pickupIcons = ['◷', '✓', '⇢', '⚖', '⌂'];
+const pickupIcons: IconName[] = ['clock', 'check', 'truck', 'scale', 'building'];
 const orderLabels = { PENDING: 'Chờ xử lý', SHIPPING: 'Đang giao', DELIVERED: 'Đã giao', CANCELLED: 'Đã hủy' };
 const num = (value: number) => value.toLocaleString('vi-VN');
 const time = (value: string) => new Date(value).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -49,14 +51,14 @@ function Dispatch({ rows, busy, run }: { rows: Pickup[]; busy: boolean; run: Run
   const [filter, setFilter] = useState('all');
   const filtered = rows.filter(row => filter === stageOf(row));
   return <>
-    <header className="htx-heading"><span className="htx-kicker">Vận hành thu gom tuần hoàn</span><h1>Bảng tin Điều phối thu gom</h1><p>Theo dõi từ lúc quán đăng ký đến khi bã hữu cơ được nhập xưởng.</p></header>
+    <header className="htx-heading"><span className="htx-kicker">Thu mua bã hữu cơ tuần hoàn</span><h1>Bảng tin Thu mua bã từ các quán F&amp;B</h1><p>Tiếp nhận yêu cầu bán bã hữu cơ (bã cà phê, vỏ trái cây...), điều xe thu gom và nhập kho ủ men vi sinh.</p></header>
     <div className="htx-tabs" aria-label="Trạng thái thu gom" role="group">
       <button aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>Tổng quan</button>
       {stages.map(([id, title]) => <button key={id} aria-pressed={filter === id} onClick={() => setFilter(id)}>{title} · {rows.filter(row => stageOf(row) === id).length}</button>)}
     </div>
     {filter === 'all' ? <>
       <div className="htx-metrics">{stages.map(([id, title, note], index) =>
-        <button key={id} data-stage={id} onClick={() => setFilter(id)}><span className="htx-metric-top"><i aria-hidden="true">{pickupIcons[index]}</i><span>Xem danh sách →</span></span><strong>{rows.filter(row => stageOf(row) === id).length}</strong><b>{title}</b><span>{note}</span></button>)}</div>
+        <button key={id} data-stage={id} onClick={() => setFilter(id)}><span className="htx-metric-top"><i aria-hidden="true"><LucideIcon name={pickupIcons[index]} size={16} /></i><span>Xem danh sách →</span></span><strong>{rows.filter(row => stageOf(row) === id).length}</strong><b>{title}</b><span>{note}</span></button>)}</div>
       <section className="htx-card"><h2>Luồng xử lý đơn thu gom</h2>
         <ol className="htx-workflow">{stages.map(([id, title, note], index) => <li key={id} data-stage={id}><b>Bước {index + 1} · {title}</b><span>{note}</span></li>)}</ol>
       </section>
@@ -157,20 +159,21 @@ function Orders({ orders, now, busy, run }: { orders: HtxOrder[]; now: string; b
 }
 
 export function HtxPortal() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const { data, error, busy, run } = useDemoData(async () => {
     const [pickups, commerce] = await Promise.all([green.getHtxPickups(), shop.getHtxCommerce()]);
     return { pickups, ...commerce };
   });
   return <div className="htx-layout">
-    <aside><Link className="htx-brand" to="/htx">FARMGO <span>HTX</span></Link><p>Vận hành thu gom tuần hoàn</p>
-      <div className="htx-identity"><span aria-hidden="true">HTX</span><strong>HTX Phân bón FARMGO</strong></div>
-      <nav aria-label="Điều hướng HTX">
-        <small>Vận hành & tuần hoàn</small>
-        <NavLink to="/htx" end>Điều phối thu gom {!!data?.pickups.some(row => row.status === 'WAITING') && <b>{data.pickups.filter(row => row.status === 'WAITING').length}</b>}</NavLink><NavLink to="/htx/recovery">Lượng thu hồi được</NavLink>
-        <small>Thương mại đầu ra</small><NavLink to="/htx/store">Gian hàng của tôi</NavLink><NavLink to="/htx/orders">Quản lý đơn hàng</NavLink>
+    <a className="portal-skip-link" href="#htx-main">Đến nội dung chính</a><aside data-open={menuOpen}><Link className="htx-brand" to="/htx">FARMGO <span>BIO</span></Link><p>Thu mua bã &amp; SX phân bón</p>
+      <div className="htx-identity"><span aria-hidden="true">BIO</span><strong>Nhà SX Phân Bón Vi Sinh</strong></div>
+      <button className="portal-menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="htx-navigation" onClick={()=>setMenuOpen(open=>!open)}><AppIcon name={menuOpen ? 'close' : 'menu'}/>{menuOpen ? 'Đóng menu' : 'Điều hướng'}</button><nav id="htx-navigation" aria-label="Điều hướng Nhà sản xuất phân bón" onClick={()=>setMenuOpen(false)}>
+        <small>Thu mua bã hữu cơ</small>
+        <NavLink to="/htx" end>Thu mua bã từ F&amp;B {!!data?.pickups.some(row => row.status === 'WAITING') && <b>{data.pickups.filter(row => row.status === 'WAITING').length}</b>}</NavLink><NavLink to="/htx/recovery">Sản lượng ủ men vi sinh</NavLink>
+        <small>Bán phân bón cho Nhà vườn</small><NavLink to="/htx/store">Gian hàng phân bón vi sinh</NavLink><NavLink to="/htx/orders">Đơn mua từ Nhà vườn</NavLink>
       </nav><Link to="/customer/green">Về FARMGO Xanh</Link>
     </aside>
-    <main><p className="htx-context">Cổng HTX Phân bón · Dữ liệu và thao tác mô phỏng</p>
+    <main id="htx-main" tabIndex={-1}><p className="htx-context">Cổng Doanh Nghiệp Sản Xuất Phân Bón Sinh Học &amp; Thu Mua Bã Hữu Cơ · Chuỗi Tuần Hoàn FARMGO</p>
       {error && <ErrorMessage message={error} />}
       {!data && !error && <LoadingSpinner />}
       {data && <Routes>

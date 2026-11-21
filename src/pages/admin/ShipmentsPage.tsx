@@ -10,6 +10,7 @@ import {
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { LoadingSpinner, ErrorMessage } from '../../components/shared/Feedback';
 import { EmptyState } from '../../components/shared/EmptyState';
+import { LucideIcon } from '../../components/shared/LucideIcon';
 
 const friendlyRecord = (id: string, kind: 'Đơn hàng' | 'Chuyến giao' | 'Khách hàng') => {
   const suffix = id.match(/(\d+)$/)?.[1];
@@ -111,8 +112,8 @@ export function ShipmentsPage() {
       {loading && <LoadingSpinner />}
       {error && <ErrorMessage message={error} onRetry={loadData} />}
       {actionMsg && (
-        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: '8px', marginBottom: 16 }}>
-          ✅ {actionMsg}
+        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <LucideIcon name="checkCircle" size={16} /> {actionMsg}
         </div>
       )}
 
@@ -193,7 +194,7 @@ export function ShipmentsPage() {
         <h2 className="card-title">Danh sách chuyến xe điều phối</h2>
         {shipments.length === 0 ? (
           <EmptyState
-            icon="🚚"
+            icon="truck"
             title="Chưa có chuyến xe nào được điều phối"
             description="Hãy gom các đơn hàng ở trên để tạo chuyến xe đầu tiên."
           />

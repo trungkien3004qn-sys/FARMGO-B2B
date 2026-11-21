@@ -37,10 +37,10 @@ export function FarmgoGreenPage() {
     finally { lock.current = false; }
   }
   return <div className="green-page">
-    <header className="green-banner"><div><h1>FARMGO Xanh</h1><p>{account.customerName} · Thu gom bã hữu cơ</p><strong>1 kg = 2.000 Điểm Xanh · 2.000 đ giảm phí giao</strong></div>
+    <header className="green-banner"><div><h1>FARMGO Xanh</h1><p>{account.customerName} · Thu gom bã hữu cơ tuần hoàn</p><strong>1 kg bã = 2.000 Điểm Xanh · Giảm trực tiếp phí giao hàng</strong></div>
       <button className="green-redeem" onClick={() => { setDialogError(''); setVoucherOpen(true); }}>Đổi voucher</button></header>
-    <p className="green-muted">Thu gom và ưu đãi mô phỏng · <Link to="/htx">Cổng HTX Phân bón</Link></p>
-    <label className="green-account-picker">Tài khoản mua mô phỏng <select value={account.customerId} disabled={busy} onChange={event => {
+    <p className="green-muted">Chương trình thu gom bã hữu cơ hợp tác cùng <Link to="/htx">Cổng HTX Phân bón FARMGO</Link></p>
+    <label className="green-account-picker">Cơ sở F&B áp dụng <select value={account.customerId} disabled={busy} onChange={event => {
       const activeCustomerId = event.target.value;
       setNotice('');
       setExpected('');

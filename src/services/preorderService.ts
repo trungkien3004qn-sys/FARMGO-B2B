@@ -1,5 +1,6 @@
 import { mutate as mutateDemo, readState } from '../store/demoStore';
 import { actor, check, entity, photo } from './governanceService';
+import { payWithBuyerWallet } from './walletService';
 import type { HarvestLot, HarvestRequest, NewHarvestLot, Preorder } from '../types/preorder';
 import type { DemoState } from '../mocks/seed';
 
@@ -142,6 +143,10 @@ export async function depositPreorder(id: string) {
       'Lượng còn lại không đủ. Chưa ghi nhận tiền cọc.');
     order.status = 'DEPOSITED';
     order.depositedAt = state.demoNow;
+
+    // Trừ 10% tiền cọc ký quỹ từ Ví FarmGoPay của quán F&B
+    payWithBuyerWallet(order.customerId, order.id, order.depositVnd);
+
     return order;
   });
 }

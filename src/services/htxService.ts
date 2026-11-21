@@ -6,17 +6,17 @@ import type { HtxOrder, HtxProduct, HtxProductInput } from '../types/htx';
 
 function commerce(state: DemoState) {
   const products: HtxProduct[] = [
-    { id: 'HTX-HC', name: 'Phân viên nén hữu cơ Quy Nhơn', category: 'Phân bón hữu cơ', description: 'Phân viên từ nguyên liệu hữu cơ đã ủ', packaging: 'Bao 25 kg', priceVnd: 165000, stock: 140, active: true },
-    { id: 'HTX-VS', name: 'Phân vi sinh ủ men bã cà phê', category: 'Chế phẩm vi sinh', description: 'Chế phẩm vi sinh từ bã cà phê', packaging: 'Bao 10 kg', priceVnd: 95000, stock: 85, active: true },
-    { id: 'HTX-TR', name: 'Chế phẩm Trichoderma', category: 'Nấm đối kháng', description: 'Chế phẩm sinh học cho nhà vườn', packaging: 'Hộp 1 kg', priceVnd: 75000, stock: 42, active: true },
-    { id: 'HTX-UM', name: 'Men ủ phụ phẩm hữu cơ', category: 'Chế phẩm vi sinh', description: 'Dùng ủ phụ phẩm nhà vườn.', packaging: 'Gói 500 g', priceVnd: 45000, stock: 20, active: false },
+    { id: 'HTX-HC', name: 'Phân viên nén hữu cơ Quy Nhơn (Ủ từ bã F&B)', category: 'Phân bón hữu cơ', description: 'Phân hữu cơ ép viên từ bã cà phê và vỏ rau củ F&B ủ hoai mục 60 ngày.', packaging: 'Bao 25 kg', priceVnd: 165000, stock: 140, active: true },
+    { id: 'HTX-VS', name: 'Phân vi sinh ủ men bã cà phê', category: 'Chế phẩm vi sinh', description: 'Chế phẩm vi sinh giàu đạm hữu cơ tái sinh từ chuỗi F&B, cải tạo đất bạc màu.', packaging: 'Bao 10 kg', priceVnd: 95000, stock: 85, active: true },
+    { id: 'HTX-TR', name: 'Chế phẩm nấm đối kháng Trichoderma', category: 'Nấm đối kháng', description: 'Nấm đối kháng sinh học ức chế nấm bệnh và tuyến trùng hại rễ.', packaging: 'Hộp 1 kg', priceVnd: 75000, stock: 42, active: true },
+    { id: 'HTX-UM', name: 'Men ủ vi sinh phụ phẩm hữu cơ', category: 'Chế phẩm vi sinh', description: 'Dùng ủ rơm rác, phụ phẩm nhà vườn.', packaging: 'Gói 500 g', priceVnd: 45000, stock: 50, active: false },
   ];
   const orders: HtxOrder[] = [
-    { id: 'DH-8924', customer: 'Vườn Rau Hữu Cơ Tuy Phước', quantity: 10, productId: products[0].id, productName: products[0].name, priceVnd: products[0].priceVnd, placedAt: state.demoNow, status: 'PENDING' },
-    { id: 'DH-8923', customer: 'HTX Bưởi Da Xanh Hoài Ân', quantity: 15, productId: products[2].id, productName: products[2].name, priceVnd: products[2].priceVnd, placedAt: state.demoNow, status: 'PENDING' },
-    { id: 'DH-8920', customer: 'Nông Trại Dưa Lưới An Nhơn', quantity: 12, productId: products[1].id, productName: products[1].name, priceVnd: products[1].priceVnd, placedAt: state.demoNow, status: 'SHIPPING' },
-    { id: 'DH-8915', customer: 'Nhà Vườn Hoa Kiểng Bình Định', quantity: 6, productId: products[0].id, productName: products[0].name, priceVnd: products[0].priceVnd, placedAt: state.demoNow, status: 'DELIVERED' },
-    { id: 'DH-8914', customer: 'Vườn Rau Hữu Cơ Tuy Phước', quantity: 4, productId: products[3].id, productName: products[3].name, priceVnd: products[3].priceVnd, placedAt: state.demoNow, status: 'CANCELLED' },
+    { id: 'DH-PB-8924', customer: 'HTX Nông Sản Sạch Đà Lạt (Xuân Thọ)', quantity: 10, productId: products[0].id, productName: products[0].name, priceVnd: products[0].priceVnd, placedAt: state.demoNow, status: 'PENDING' },
+    { id: 'DH-PB-8923', customer: 'HTX Trái Cây Hữu Cơ Hòa Lộc & Chợ Lách', quantity: 15, productId: products[2].id, productName: products[2].name, priceVnd: products[2].priceVnd, placedAt: state.demoNow, status: 'PENDING' },
+    { id: 'DH-PB-8920', customer: 'Nông Trại Công Nghệ Cao Bến Tre Farm', quantity: 12, productId: products[1].id, productName: products[1].name, priceVnd: products[1].priceVnd, placedAt: state.demoNow, status: 'SHIPPING' },
+    { id: 'DH-PB-8915', customer: 'HTX Nông Sản Sạch Đà Lạt (Xuân Thọ)', quantity: 6, productId: products[0].id, productName: products[0].name, priceVnd: products[0].priceVnd, placedAt: state.demoNow, status: 'DELIVERED' },
+    { id: 'DH-PB-8914', customer: 'Vườn Trái Cây An Phú Đức Trọng', quantity: 4, productId: products[3].id, productName: products[3].name, priceVnd: products[3].priceVnd, placedAt: state.demoNow, status: 'CANCELLED' },
   ];
   if (!state.htxCommerce) return { products, orders };
   const saved = state.htxCommerce;

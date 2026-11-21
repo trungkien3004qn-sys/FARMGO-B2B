@@ -1,32 +1,61 @@
-/* App-wide foundation: this prototype uses a single, explicit light theme. */
+/* App-wide foundation (Chuẩn Taste Skill: Palette Clay-Pine & Font Epilogue) */
+@import './styles/animate-enhanced.css';
+
 :root {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Epilogue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color-scheme: light;
-  color: #0f172a;
-  background: #f8fafc;
+  color: #22261f;
+  background: #fbf9f5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --text-h: #0f172a;
+
+  /* Bảng màu Clay-Pine chuẩn Taste Skill */
+  --p-bg: #efe9e0;
+  --p-surface: #ffffff;
+  --p-surface-subtle: #f5f2eb;
+  --p-ink: #22261f;
+  --p-muted: #5a5c53;
+  --p-line: #ded7cb;
+  --p-accent: #2e5b44;
+  --p-accent-hover: #234735;
+  --p-warning: #b45309;
+  --p-error: #991b1b;
+  --p-radius: 14px;
+
+  /* Tương thích ngược với hệ thống biến cũ */
+  --text-h: #22261f;
   --text: #334155;
-  --code-bg: #f1f5f9;
+  --code-bg: #f5f2eb;
+  --green-main: #2e5b44;
+  --green-dark: #234735;
+  --green-deep: #1b3628;
+  --green-soft: #f0f5f1;
+  --green-border: #c4d7c7;
+  --accent-main: #b45309;
+  --accent-soft: #fffbeb;
+  --accent-border: #fde68a;
+  --bg-page: #fbf9f5;
+  --bg-card: #ffffff;
+  --border-light: #ded7cb;
+  --border-medium: #c8c0b2;
 }
-body { margin: 0; min-width: 320px; }
+body { margin: 0; min-width: 320px; background-color: var(--bg-page); color: var(--text-h); }
 *, *::before, *::after { box-sizing: border-box; }
 #root { min-height: 100svh; width: 100%; }
-h1, h2, h3 { color: #0f172a; line-height: 1.3; }
-h1 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); margin: 0; letter-spacing: -0.025em; }
+h1, h2, h3 { color: var(--text-h); line-height: 1.3; font-weight: 650; letter-spacing: -0.02em; }
+h1 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); margin: 0; }
 h2 { font-size: 1.375rem; margin: 0 0 8px; }
-p { line-height: 1.6; }
+p { line-height: 1.6; color: var(--text); }
 button, input, select, textarea { font: inherit; }
 button, select { min-height: 44px; }
 input:not([type='checkbox']):not([type='radio']), textarea { min-height: 44px; }
 button:disabled { cursor: not-allowed; opacity: .55; }
-:focus-visible { outline: 3px solid #0369a1; outline-offset: 3px; }
-code { color: #334155; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: .875em; overflow-wrap: anywhere; }
-a { text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid #2e5b44; outline-offset: 3px; }
+code { color: #22261f; background: #f5f2eb; padding: 2px 6px; border-radius: 4px; font-size: .875em; overflow-wrap: anywhere; }
+a { text-underline-offset: 3px; color: #2e5b44; }
 img, svg { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }

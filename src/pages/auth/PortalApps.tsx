@@ -125,7 +125,7 @@ function PortalLogin({ portal, mode = 'login', error, onSignIn, onRegister }: {
         <Link to="/customer" className="auth-mobile-brand">← Về mua & cung ứng</Link>
         {isTransport && <div className="auth-mode-switch"><Link className={!registering ? 'active' : ''} to="/transport/login">Đăng nhập</Link><Link className={registering ? 'active' : ''} to="/transport/register">Đăng ký nhà xe</Link></div>}
         <p className="auth-form-kicker">{isTransport ? 'CỔNG GIAO NHẬN' : 'KHU VỰC QUẢN TRỊ'}</p>
-        <h2>{registering ? 'Tạo tài khoản demo' : isTransport ? 'Đăng nhập vận chuyển' : 'Đăng nhập Admin'}</h2>
+        <h1>{registering ? 'Tạo tài khoản demo' : isTransport ? 'Đăng nhập vận chuyển' : 'Đăng nhập Admin'}</h1>
         <p className="auth-form-description">{registering ? 'Tạo hồ sơ để mở bảng chuyến giao mô phỏng.' : isTransport ? 'Đăng nhập bằng tài khoản bất kỳ để xem bảng chuyến demo.' : 'Đăng nhập để tiếp tục vào trung tâm điều hành FARMGO.'}</p>
 
         <form className="auth-form" onSubmit={submit}>

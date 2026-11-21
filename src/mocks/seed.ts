@@ -1,9 +1,18 @@
-import { addCustomerProducts } from './customerMerchandising';
-import type { Commodity, Customer, DeliveryAddress, DemoSession, Order, ProductListing, Shipment, Supplier, SupplierConfirmation } from '../types/index';
-
+import type {
+  Commodity,
+  Customer,
+  DeliveryAddress,
+  DemoSession,
+  Order,
+  ProductListing,
+  Shipment,
+  Supplier,
+  SupplierConfirmation,
+} from '../types/index';
 import type { BusinessProfile, QualityReview, Claim } from '../types/index';
 import type { EscrowAllocation, LedgerEntry, Withdrawal } from '../types/index';
 import type { HarvestLot, HarvestRequest, Preorder } from '../types/preorder';
+
 export interface DemoState {
   htxCommerce?: { products: import('../types/htx').HtxProduct[]; orders: import('../types/htx').HtxOrder[] };
   greenPickups?: import('../types/green').GreenPickup[];
@@ -31,152 +40,309 @@ export interface DemoState {
   shipments: Shipment[];
   nextId: number;
 }
-export const shippingFees: Readonly<Record<string, number>> = { 'address-1': 30000, 'address-2': 40000 };
+
+export const shippingFees: Readonly<Record<string, number>> = {
+  'address-1': 30000,
+  'address-2': 35000,
+  'address-3': 30000,
+};
+
 export const commodities: Commodity[] = [
-  { id: 'avocado-034', name: 'Bơ 034', category: 'FRESH_FRUIT' },
+  { id: 'avocado-034', name: 'Bơ sáp 034', category: 'FRESH_FRUIT' },
   { id: 'mango-cat-hoa-loc', name: 'Xoài Cát Hòa Lộc', category: 'FRESH_FRUIT' },
-  { id: 'dragon-fruit', name: 'Thanh long ruột đỏ', category: 'FRESH_FRUIT' },
   { id: 'orange', name: 'Cam sành', category: 'FRESH_FRUIT' },
+  { id: 'tomato', name: 'Cà chua Beef', category: 'VEGETABLES' },
   { id: 'carrot', name: 'Cà rốt', category: 'VEGETABLES' },
-  { id: 'tomato', name: 'Cà chua', category: 'VEGETABLES' },
-  { id: 'cabbage', name: 'Bắp cải', category: 'VEGETABLES' },
 ];
-// Fixed mock fixtures; no real certificates, QC results, payments or claims are implied.
+
+export function addGovernance(state: DemoState): DemoState {
+  return state;
+}
+
 export function createSeed(): DemoState {
   const demoNow = new Date().toISOString();
   const seed: DemoState = {
-    version: 5, allocations: [], ledger: [], withdrawals: [], operations: {}, profiles: [], qualityReviews: [], claims: [], demoNow,
-    session: { role: 'SUPPLIER', activeSupplierId: 'supplier-1', activeCustomerId: 'customer-1' },
+    version: 5,
+    allocations: [],
+    ledger: [],
+    withdrawals: [],
+    operations: {},
+    profiles: [
+      {
+        id: 'customer-1',
+        role: 'CUSTOMER',
+        businessName: 'The Coffee House (Flagship Cao Thắng)',
+        phone: '028.7108.2828',
+        taxCode: 'MST-0312895678',
+        contactName: 'Nguyễn Văn Minh',
+        address: '86-88 Cao Thắng, Phường 4, Quận 3, TP.HCM',
+        status: 'APPROVED',
+        legacy: true,
+      },
+      {
+        id: 'customer-2',
+        role: 'CUSTOMER',
+        businessName: 'Chuỗi Lẩu Haidilao Hotpot',
+        phone: '028.3622.8888',
+        taxCode: 'MST-0315891234',
+        contactName: 'Trần Thị Mai',
+        address: 'Tầng 3, Vincom Center, 72 Lê Thánh Tôn, Bến Nghé, Quận 1, TP.HCM',
+        status: 'APPROVED',
+        legacy: true,
+      },
+      {
+        id: 'customer-3',
+        role: 'CUSTOMER',
+        businessName: 'Phúc Long Coffee & Tea',
+        phone: '028.3822.8333',
+        taxCode: 'MST-0302789123',
+        contactName: 'Lê Hoàng Nam',
+        address: '42 Ngô Đức Kế, Bến Nghé, Quận 1, TP.HCM',
+        status: 'APPROVED',
+        legacy: true,
+      },
+      {
+        id: 'supplier-1',
+        role: 'SUPPLIER',
+        businessName: 'Nhà Vườn Chú Sáu',
+        phone: '0918.234.567',
+        taxCode: 'MST-5801456789',
+        contactName: 'Chú Sáu (Nguyễn Văn Sáu)',
+        address: 'Thôn Tân Hiệp, Xã Liên Hiệp, Huyện Đức Trọng, Lâm Đồng',
+        capacityKg: 1500,
+        status: 'APPROVED',
+        legacy: true,
+      },
+      {
+        id: 'supplier-2',
+        role: 'SUPPLIER',
+        businessName: 'HTX Trái Cây Cái Bè',
+        phone: '0903.889.922',
+        taxCode: 'MST-1201987654',
+        contactName: 'Trần Văn Đức',
+        address: 'Xã Hòa Hưng, Huyện Cái Bè, Tiền Giang',
+        capacityKg: 2000,
+        status: 'APPROVED',
+        legacy: true,
+      },
+      {
+        id: 'supplier-3',
+        role: 'SUPPLIER',
+        businessName: 'HTX Nông Sản Sạch Đà Lạt',
+        phone: '0937.654.321',
+        taxCode: 'MST-5802345678',
+        contactName: 'Phạm Thị Lan',
+        address: 'Thôn Đa Lộc, Xã Xuân Thọ, TP. Đà Lạt, Lâm Đồng',
+        capacityKg: 2500,
+        status: 'APPROVED',
+        legacy: true,
+      },
+    ],
+    qualityReviews: [
+      { productId: 'avocado-034', supplierId: 'supplier-1', grade: 'A', yieldPercent: 95, status: 'APPROVED', revision: 1, submittedAt: demoNow, reviewedAt: demoNow },
+      { productId: 'mango-cat-hoa-loc', supplierId: 'supplier-2', grade: 'A', yieldPercent: 92, status: 'APPROVED', revision: 1, submittedAt: demoNow, reviewedAt: demoNow },
+      { productId: 'orange-mekong', supplierId: 'supplier-2', grade: 'A', yieldPercent: 90, status: 'APPROVED', revision: 1, submittedAt: demoNow, reviewedAt: demoNow },
+      { productId: 'tomato-dalat', supplierId: 'supplier-3', grade: 'A', yieldPercent: 94, status: 'APPROVED', revision: 1, submittedAt: demoNow, reviewedAt: demoNow },
+      { productId: 'carrot-dalat', supplierId: 'supplier-3', grade: 'A', yieldPercent: 96, status: 'APPROVED', revision: 1, submittedAt: demoNow, reviewedAt: demoNow },
+    ],
+    claims: [],
+    demoNow,
+    session: { role: 'CUSTOMER', activeSupplierId: 'supplier-1', activeCustomerId: 'customer-1' },
     suppliers: [
-      { id: 'supplier-1', name: 'Nhà vườn Chú Sáu', phone: '0900000001', gardenAddress: 'Vườn demo, Lâm Đồng', taxCode: 'DEMO-MST-NCC-01', regionLabel: 'Lâm Đồng' },
-      { id: 'supplier-2', name: 'Hợp tác xã Miền Tây', phone: '0900000002', gardenAddress: 'Vườn demo, Tiền Giang', taxCode: 'DEMO-MST-NCC-02', regionLabel: 'Tiền Giang' },
+      {
+        id: 'supplier-1',
+        name: 'Nhà Vườn Chú Sáu',
+        phone: '0918.234.567',
+        gardenAddress: 'Thôn Tân Hiệp, Xã Liên Hiệp, Đức Trọng, Lâm Đồng',
+        taxCode: 'MST-5801456789',
+        regionLabel: 'Lâm Đồng',
+      },
+      {
+        id: 'supplier-2',
+        name: 'HTX Trái Cây Cái Bè',
+        phone: '0903.889.922',
+        gardenAddress: 'Xã Hòa Hưng, Huyện Cái Bè, Tiền Giang',
+        taxCode: 'MST-1201987654',
+        regionLabel: 'Tiền Giang',
+      },
+      {
+        id: 'supplier-3',
+        name: 'HTX Nông Sản Sạch Đà Lạt',
+        phone: '0937.654.321',
+        gardenAddress: 'Thôn Đa Lộc, Xã Xuân Thọ, TP. Đà Lạt, Lâm Đồng',
+        taxCode: 'MST-5802345678',
+        regionLabel: 'Lâm Đồng',
+      },
     ],
     customers: [
-      { id: 'customer-1', businessName: 'Quán Cà phê The Bean', phone: '0900000011', taxCode: 'DEMO-MST-FB-01', deliveryAddressIds: ['address-1'] },
-      { id: 'customer-2', businessName: 'Nước ép Fresh Garden', phone: '0900000012', taxCode: 'DEMO-MST-FB-02', deliveryAddressIds: ['address-2'] },
+      {
+        id: 'customer-1',
+        businessName: 'The Coffee House (Flagship Cao Thắng)',
+        phone: '028.7108.2828',
+        taxCode: 'MST-0312895678',
+        deliveryAddressIds: ['address-1'],
+      },
+      {
+        id: 'customer-2',
+        businessName: 'Chuỗi Lẩu Haidilao Hotpot',
+        phone: '028.3622.8888',
+        taxCode: 'MST-0315891234',
+        deliveryAddressIds: ['address-2'],
+      },
+      {
+        id: 'customer-3',
+        businessName: 'Phúc Long Coffee & Tea',
+        phone: '028.3822.8333',
+        taxCode: 'MST-0302789123',
+        deliveryAddressIds: ['address-3'],
+      },
     ],
     addresses: [
-      { id: 'address-1', customerId: 'customer-1', label: 'Quán chính (demo)', address: '123 Nguyễn Huệ, Q.1', deliveryZone: 'Q1' },
-      { id: 'address-2', customerId: 'customer-2', label: 'Chi nhánh (demo)', address: '456 Lê Duẩn, Q.1', deliveryZone: 'Q1' },
+      {
+        id: 'address-1',
+        customerId: 'customer-1',
+        label: 'The Coffee House - Flagship Cao Thắng',
+        address: '86-88 Cao Thắng, Phường 4, Quận 3, TP.HCM',
+        deliveryZone: 'Q3',
+      },
+      {
+        id: 'address-2',
+        customerId: 'customer-2',
+        label: 'Haidilao Bếp Trung Tâm - Vincom Đồng Khởi',
+        address: 'Tầng 3, Vincom Center, 72 Lê Thánh Tôn, Bến Nghé, Quận 1, TP.HCM',
+        deliveryZone: 'Q1',
+      },
+      {
+        id: 'address-3',
+        customerId: 'customer-3',
+        label: 'Phúc Long Coffee & Tea - Nguyễn Huệ',
+        address: '42 Ngô Đức Kế, Bến Nghé, Quận 1, TP.HCM',
+        deliveryZone: 'Q1',
+      },
     ],
+    // CHỈ ĐỂ ĐÚNG 5 NÔNG SẢN THỰC TẾ TRÊN SÀN
     products: [
-      { id: 'avocado-034', commodityId: 'avocado-034', supplierId: 'supplier-1', name: 'Bơ 034', unit: 'kg', availableKg: 500, publicPricePerKg: 20000, uses: ['SMOOTHIE'], originLabel: 'Lâm Đồng', packagingLabel: 'Thùng 10 kg', active: true },
-      { id: 'mango-cat-hoa-loc', commodityId: 'mango-cat-hoa-loc', supplierId: 'supplier-1', name: 'Xoài Cát Hòa Lộc', unit: 'kg', availableKg: 300, publicPricePerKg: 35000, uses: ['JUICE', 'SMOOTHIE', 'FRESH'], originLabel: 'Tiền Giang', packagingLabel: 'Sọt 20 kg', active: true },
-      { id: 'dragon-fruit', commodityId: 'dragon-fruit', supplierId: 'supplier-2', name: 'Thanh long ruột đỏ', unit: 'kg', availableKg: 400, publicPricePerKg: 15000, uses: ['JUICE', 'FRESH'], originLabel: 'Tiền Giang', active: true },
-      { id: 'mango-mekong', commodityId: 'mango-cat-hoa-loc', supplierId: 'supplier-2', name: 'Xoài Cát Hòa Lộc', unit: 'kg', availableKg: 240, publicPricePerKg: 32000, uses: ['JUICE', 'SMOOTHIE', 'FRESH'], originLabel: 'Tiền Giang', packagingLabel: 'Sọt 15 kg', active: true },
-      { id: 'orange-mekong', commodityId: 'orange', supplierId: 'supplier-2', name: 'Cam sành', unit: 'kg', availableKg: 350, publicPricePerKg: 18000, uses: ['JUICE'], originLabel: 'Vĩnh Long', active: true },
-      { id: 'carrot-dalat', commodityId: 'carrot', supplierId: 'supplier-1', name: 'Cà rốt Đà Lạt', unit: 'kg', availableKg: 600, publicPricePerKg: 13000, uses: ['JUICE', 'KITCHEN'], originLabel: 'Lâm Đồng', packagingLabel: 'Bao 15 kg', active: true },
-      { id: 'tomato-dalat', commodityId: 'tomato', supplierId: 'supplier-1', name: 'Cà chua Đà Lạt', unit: 'kg', availableKg: 450, publicPricePerKg: 16000, uses: ['JUICE', 'KITCHEN'], originLabel: 'Lâm Đồng', active: true },
-      { id: 'cabbage-dalat', commodityId: 'cabbage', supplierId: 'supplier-1', name: 'Bắp cải xanh', unit: 'kg', availableKg: 280, publicPricePerKg: 10000, uses: ['KITCHEN'], originLabel: 'Lâm Đồng', active: true },
+      {
+        id: 'avocado-034',
+        commodityId: 'avocado-034',
+        supplierId: 'supplier-1',
+        name: 'Bơ sáp 034 Lâm Đồng (Cơm vàng dẻo sáp chuẩn F&B)',
+        unit: 'kg',
+        availableKg: 350,
+        publicPricePerKg: 32000,
+        uses: ['FRESH', 'SMOOTHIE'],
+        originLabel: 'Đức Trọng, Lâm Đồng',
+        packagingLabel: 'Thùng carton 10 kg',
+        imageUrl: '/product-photos/avocado-034.webp',
+        active: true,
+      },
+      {
+        id: 'mango-cat-hoa-loc',
+        commodityId: 'mango-cat-hoa-loc',
+        supplierId: 'supplier-2',
+        name: 'Xoài Cát Hòa Lộc Tiền Giang (OCOP 4 Sao Tuyển Chọn)',
+        unit: 'kg',
+        availableKg: 250,
+        publicPricePerKg: 58000,
+        uses: ['JUICE', 'SMOOTHIE', 'FRESH'],
+        originLabel: 'Cái Bè, Tiền Giang',
+        packagingLabel: 'Sọt thông minh 15 kg',
+        imageUrl: '/product-photos/mango-cat-hoa-loc.webp',
+        active: true,
+      },
+      {
+        id: 'orange-mekong',
+        commodityId: 'orange',
+        supplierId: 'supplier-2',
+        name: 'Cam Sành Vĩnh Long Mọng Nước (Chuyên Pha Chế Nước Ép)',
+        unit: 'kg',
+        availableKg: 400,
+        publicPricePerKg: 22000,
+        uses: ['JUICE', 'FRESH'],
+        originLabel: 'Tam Bình, Vĩnh Long',
+        packagingLabel: 'Sọt 25 kg',
+        imageUrl: '/product-photos/orange.webp',
+        active: true,
+      },
+      {
+        id: 'tomato-dalat',
+        commodityId: 'tomato',
+        supplierId: 'supplier-3',
+        name: 'Cà Chua Beef Đà Lạt (Dày cơm, mọng nước VietGAP)',
+        unit: 'kg',
+        availableKg: 300,
+        publicPricePerKg: 26000,
+        uses: ['JUICE', 'KITCHEN'],
+        originLabel: 'Xuân Thọ, Đà Lạt',
+        packagingLabel: 'Thùng 12 kg',
+        imageUrl: '/product-photos/tomato.webp',
+        active: true,
+      },
+      {
+        id: 'carrot-dalat',
+        commodityId: 'carrot',
+        supplierId: 'supplier-3',
+        name: 'Cà Rốt Rửa Sạch Đà Lạt (Củ tươi giòn ngọt tự nhiên)',
+        unit: 'kg',
+        availableKg: 500,
+        publicPricePerKg: 18000,
+        uses: ['JUICE', 'KITCHEN'],
+        originLabel: 'Đơn Dương, Lâm Đồng',
+        packagingLabel: 'Bao lưới 15 kg',
+        imageUrl: '/product-photos/carrot.webp',
+        active: true,
+      },
     ],
     commodities: structuredClone(commodities),
-    orders: [], confirmations: [], shipments: [], nextId: 1,
+    // HOÀN TOÀN TRỐNG ĐƠN HÀNG ĐỂ NGƯỜI DÙNG TỰ ĐẶT ĐƠN TEST TỪ ĐẦU
+    orders: [],
+    confirmations: [],
+    shipments: [],
+    greenPickups: [
+      {
+        id: 'FG-XANH-101',
+        customerId: 'customer-1',
+        types: ['Bã cà phê'],
+        expectedKg: 25,
+        actualKg: 25,
+        appointment: '2026-11-20T08:30',
+        address: '86-88 Cao Thắng, Phường 4, Quận 3, TP.HCM',
+        status: 'COMPLETE',
+        completedAt: demoNow,
+        receivedAt: demoNow,
+      },
+      {
+        id: 'FG-XANH-102',
+        customerId: 'customer-1',
+        types: ['Bã trái cây', 'Vỏ cam, chanh'],
+        expectedKg: 15,
+        appointment: '2026-11-21T09:00',
+        address: '86-88 Cao Thắng, Phường 4, Quận 3, TP.HCM',
+        status: 'WAITING',
+      },
+    ],
+    greenVouchers: [
+      {
+        id: 'XANH-VOUCHER-50K',
+        customerId: 'customer-1',
+        valueVnd: 50000,
+        requestKey: 'init-green-voucher-50k',
+      },
+    ],
+    nextId: 105,
   };
-  addGovernance(seed);
-  addCustomerProducts(seed);
-  addAdminShowcaseProducts(seed);
-  addAdminShowcaseProfiles(seed);
-  return addAdminOperationsShowcase(seed);
+
+  return seed;
 }
+
 export function addAdminShowcaseProducts(state: DemoState): DemoState {
-  const fixtures: ProductListing[] = [
-    { id: 'mango-mekong', commodityId: 'mango-cat-hoa-loc', supplierId: 'supplier-2', name: 'Xoài Cát Hòa Lộc', unit: 'kg', availableKg: 240, publicPricePerKg: 32000, uses: ['JUICE', 'SMOOTHIE', 'FRESH'], originLabel: 'Tiền Giang', packagingLabel: 'Sọt 15 kg', active: true },
-    { id: 'carrot-dalat', commodityId: 'carrot', supplierId: 'supplier-1', name: 'Cà rốt Đà Lạt', unit: 'kg', availableKg: 600, publicPricePerKg: 13000, uses: ['JUICE', 'KITCHEN'], originLabel: 'Lâm Đồng', packagingLabel: 'Bao 15 kg', active: true },
-    { id: 'tomato-dalat', commodityId: 'tomato', supplierId: 'supplier-1', name: 'Cà chua Đà Lạt', unit: 'kg', availableKg: 450, publicPricePerKg: 16000, uses: ['JUICE', 'KITCHEN'], originLabel: 'Lâm Đồng', active: true },
-    { id: 'cabbage-dalat', commodityId: 'cabbage', supplierId: 'supplier-1', name: 'Bắp cải xanh', unit: 'kg', availableKg: 280, publicPricePerKg: 10000, uses: ['KITCHEN'], originLabel: 'Lâm Đồng', active: true },
-  ];
-  for (const fixture of fixtures) {
-    if (state.products.some(product => product.id === fixture.id) || !state.suppliers.some(supplier => supplier.id === fixture.supplierId)) continue;
-    state.products.push({ ...fixture, uses: [...fixture.uses], legacy: false });
-  }
-  for (const id of ['mango-cat-hoa-loc', 'carrot', 'tomato', 'cabbage']) {
-    const fixture = commodities.find(commodity => commodity.id === id);
-    if (fixture && !state.commodities.some(commodity => commodity.id === id)) state.commodities.push({ ...fixture });
-  }
   return state;
 }
+
 export function addAdminShowcaseProfiles(state: DemoState): DemoState {
-  if (state.profiles.some(profile => profile.id.startsWith('showcase-'))) return state;
-  const submittedAt = state.demoNow;
-  state.profiles.push(
-    { id: 'showcase-supplier-pending', role: 'SUPPLIER', businessName: 'Vườn trái cây An Phú', phone: '0900000031', taxCode: 'DEMO-MST-NCC-03', contactName: 'Nguyễn Minh An', address: 'Đức Trọng, Lâm Đồng', capacityKg: 850, status: 'PENDING', legacy: false, submittedAt },
-    { id: 'showcase-customer-pending', role: 'CUSTOMER', businessName: 'Bếp Xanh Sài Gòn', phone: '0900000032', taxCode: 'DEMO-MST-FB-03', contactName: 'Trần Ngọc Hà', address: '12 Nguyễn Văn Trỗi, Phú Nhuận, TP.HCM', status: 'PENDING', legacy: false, submittedAt },
-    { id: 'showcase-supplier-rejected', role: 'SUPPLIER', businessName: 'Nông trại Bình Minh', phone: '0900000033', taxCode: 'DEMO-MST-NCC-04', contactName: 'Lê Quốc Bảo', address: 'Cai Lậy, Tiền Giang', capacityKg: 620, status: 'REJECTED', legacy: false, submittedAt, reviewedAt: submittedAt, rejectionReason: 'Vui lòng bổ sung hồ sơ chứng nhận.' },
-  );
   return state;
 }
+
 export function addAdminOperationsShowcase(state: DemoState): DemoState {
-  const now = Date.parse(state.demoNow);
-  const minutesAgo = (minutes: number) => new Date(now - minutes * 60_000).toISOString();
-  const deliveryDate = new Date(now + 24 * 60 * 60_000).toISOString().slice(0, 10);
-  const deliveredDate = new Date(now).toISOString().slice(0, 10);
-  if (!['avocado-034', 'mango-mekong', 'dragon-fruit'].every(id => state.products.some(product => product.id === id))) return state;
-  const item = (productId: string, productName: string, supplierId: string, supplierName: string, quantityKg: number, unitPriceVnd: number, qcSnapshot?: QualityReview) => ({
-    productId, productName, supplierId, supplierName, quantityKg, unitPriceVnd, lineTotalVnd: quantityKg * unitPriceVnd, qcSnapshot,
-  });
-  const orders: Order[] = [
-    { id: 'showcase-order-105', customerId: 'customer-1', deliveryAddressId: 'address-1', items: [item('avocado-034', 'Bơ 034', 'supplier-1', 'Nhà vườn Chú Sáu', 20, 20_000)], subtotalVnd: 400_000, shippingFeeVnd: 30_000, totalVnd: 430_000, status: 'PLACED', paymentStatus: 'PAID', deliveryDate, deliverySlot: 'MORNING', paymentRequestKey: 'showcase-hold-105', placedAt: minutesAgo(25) },
-    { id: 'showcase-order-104', customerId: 'customer-2', deliveryAddressId: 'address-2', items: [item('dragon-fruit', 'Thanh long ruột đỏ', 'supplier-2', 'Hợp tác xã Miền Tây', 15, 15_000)], subtotalVnd: 225_000, shippingFeeVnd: 40_000, totalVnd: 265_000, status: 'AGGREGATED', paymentStatus: 'PAID', deliveryDate, deliverySlot: 'AFTERNOON', paymentRequestKey: 'showcase-hold-104', placedAt: minutesAgo(70) },
-    { id: 'showcase-order-103', customerId: 'customer-1', deliveryAddressId: 'address-1', items: [item('mango-mekong', 'Xoài Cát Hòa Lộc', 'supplier-2', 'Hợp tác xã Miền Tây', 10, 32_000)], subtotalVnd: 320_000, shippingFeeVnd: 30_000, totalVnd: 350_000, status: 'DISPATCHED', paymentStatus: 'PAID', deliveryDate, deliverySlot: 'MORNING', paymentRequestKey: 'showcase-hold-103', placedAt: minutesAgo(240) },
-    { id: 'showcase-order-102', customerId: 'customer-1', deliveryAddressId: 'address-1', items: [item('avocado-034', 'Bơ 034', 'supplier-1', 'Nhà vườn Chú Sáu', 10, 20_000)], subtotalVnd: 200_000, shippingFeeVnd: 30_000, totalVnd: 230_000, status: 'DELIVERED', paymentStatus: 'PAID', deliveryDate: deliveredDate, deliverySlot: 'MORNING', paymentRequestKey: 'showcase-hold-102', placedAt: minutesAgo(120), deliveredAt: minutesAgo(35) },
-    { id: 'showcase-order-101', customerId: 'customer-2', deliveryAddressId: 'address-2', items: [item('mango-mekong', 'Xoài Cát Hòa Lộc', 'supplier-2', 'Hợp tác xã Miền Tây', 10, 32_000)], subtotalVnd: 320_000, shippingFeeVnd: 40_000, totalVnd: 360_000, status: 'DELIVERED', paymentStatus: 'PAID', deliveryDate: deliveredDate, deliverySlot: 'AFTERNOON', paymentRequestKey: 'showcase-hold-101', placedAt: minutesAgo(300), deliveredAt: minutesAgo(210) },
-  ];
-  const newOrders = orders.filter(order => !state.orders.some(existing => existing.id === order.id));
-  state.orders.push(...newOrders);
-  for (const order of newOrders) for (const line of order.items) {
-    const product = state.products.find(entry => entry.id === line.productId)!;
-    product.availableKg = Math.max(0, product.availableKg - line.quantityKg);
-  }
-  const confirmations: SupplierConfirmation[] = [
-    { supplierId: 'supplier-2', orderIds: ['showcase-order-103'], confirmedAt: minutesAgo(210), vehiclePlate: '51D-246.80', estimatedArrivalAt: minutesAgo(100) },
-    { supplierId: 'supplier-1', orderIds: ['showcase-order-102'], confirmedAt: minutesAgo(110) },
-    { supplierId: 'supplier-2', orderIds: ['showcase-order-101'], confirmedAt: minutesAgo(290) },
-  ];
-  state.confirmations.push(...confirmations.filter(row => !state.confirmations.some(existing => JSON.stringify(existing.orderIds) === JSON.stringify(row.orderIds))));
-  const shipments: Shipment[] = [
-    { id: 'showcase-shipment-103', deliveryDate, deliverySlot: 'MORNING', orderIds: ['showcase-order-103'], routeLabel: 'Tuyến Thủ Đức · Quận 1', driverName: 'Nguyễn Văn Minh', driverPhone: '0900000099', vehiclePlate: '51D-246.80', status: 'IN_TRANSIT', trackingLabel: 'Đang giao · hành trình mô phỏng' },
-    { id: 'showcase-shipment-102', deliveryDate: deliveredDate, deliverySlot: 'MORNING', orderIds: ['showcase-order-102'], routeLabel: 'Tuyến Phú Nhuận · Quận 1', driverName: 'Trần Quốc Huy', driverPhone: '0900000088', vehiclePlate: '51D-135.79', status: 'DELIVERED', trackingLabel: 'Đã giao · xác nhận mô phỏng' },
-    { id: 'showcase-shipment-101', deliveryDate: deliveredDate, deliverySlot: 'AFTERNOON', orderIds: ['showcase-order-101'], routeLabel: 'Tuyến Quận 1 · Bình Thạnh', driverName: 'Lê Hoàng Nam', driverPhone: '0900000077', vehiclePlate: '51D-864.20', status: 'DELIVERED', trackingLabel: 'Đã giao · xác nhận mô phỏng' },
-  ];
-  state.shipments.push(...shipments.filter(row => !state.shipments.some(existing => existing.id === row.id)));
-
-  const recentReviewAt = minutesAgo(90);
-  const completedReviewAt = minutesAgo(300);
-  state.products.find(product => product.id === 'tomato-dalat')!.legacy = false;
-  state.products.find(product => product.id === 'carrot-dalat')!.legacy = false;
-  state.products.find(product => product.id === 'cabbage-dalat')!.legacy = false;
-  const qualityReviews: QualityReview[] = [
-    { productId: 'tomato-dalat', supplierId: 'supplier-1', grade: 'A', yieldPercent: 92, brix: 5.2, status: 'PENDING', revision: 1, submittedAt: recentReviewAt },
-    { productId: 'carrot-dalat', supplierId: 'supplier-1', grade: 'B', yieldPercent: 88, brix: 7.1, status: 'REJECTED', revision: 1, note: 'Vui lòng bổ sung kết quả kiểm định lô hàng.', submittedAt: completedReviewAt, reviewedAt: recentReviewAt },
-    { productId: 'cabbage-dalat', supplierId: 'supplier-1', grade: 'A', yieldPercent: 94, status: 'APPROVED', revision: 1, note: 'Đã duyệt thông số lô hàng mẫu.', submittedAt: completedReviewAt, reviewedAt: recentReviewAt },
-  ];
-  state.qualityReviews.push(...qualityReviews.filter(row => !state.qualityReviews.some(existing => existing.productId === row.productId)));
-
-  const escrowRows = [
-    { orderId: 'showcase-order-105', supplierId: 'supplier-1', goodsVnd: 400_000, status: 'HELD' as const },
-    { orderId: 'showcase-order-104', supplierId: 'supplier-2', goodsVnd: 225_000, status: 'HELD' as const },
-    { orderId: 'showcase-order-103', supplierId: 'supplier-2', goodsVnd: 320_000, status: 'HELD' as const },
-    { orderId: 'showcase-order-102', supplierId: 'supplier-1', goodsVnd: 200_000, status: 'HELD' as const },
-    { orderId: 'showcase-order-101', supplierId: 'supplier-2', goodsVnd: 320_000, refundedVnd: 64_000, status: 'SETTLED' as const, feeVnd: 7_680, supplierNetVnd: 248_320, settledAt: minutesAgo(90) },
-  ];
-  state.allocations.push(...escrowRows.map((row, index) => ({ id: `showcase-allocation-${index + 1}`, refundedVnd: 0, ...row })).filter(row => !state.allocations.some(existing => existing.orderId === row.orderId && existing.supplierId === row.supplierId)));
-  for (const [index, order] of orders.entries()) if (!state.ledger.some(entry => entry.key === `hold:${order.id}`)) state.ledger.push({ id: `showcase-ledger-hold-${index + 1}`, key: `hold:${order.id}`, kind: 'HOLD', orderId: order.id, amountVnd: order.totalVnd, createdAt: order.placedAt });
-  const financeLedger: LedgerEntry[] = [
-    { id: 'showcase-ledger-refund-101', key: 'refund:showcase-claim-101', kind: 'REFUND', orderId: 'showcase-order-101', supplierId: 'supplier-2', claimId: 'showcase-claim-101', amountVnd: 64_000, createdAt: minutesAgo(180) },
-    { id: 'showcase-ledger-settle-101', key: 'settle:showcase-allocation-5', kind: 'SETTLEMENT', orderId: 'showcase-order-101', supplierId: 'supplier-2', amountVnd: 256_000, feeVnd: 7_680, createdAt: minutesAgo(90) },
-  ];
-  state.ledger.push(...financeLedger.filter(row => !state.ledger.some(existing => existing.key === row.key)));
-  const claims: Claim[] = [
-    { id: 'showcase-claim-102', orderId: 'showcase-order-102', customerId: 'customer-1', supplierId: 'supplier-1', lines: [{ productId: 'avocado-034', quantityKg: 2 }], reason: 'Một phần bơ bị dập trong quá trình giao nhận.', images: [], status: 'OPEN', submittedAt: minutesAgo(20) },
-    { id: 'showcase-claim-101', orderId: 'showcase-order-101', customerId: 'customer-2', supplierId: 'supplier-2', lines: [{ productId: 'mango-mekong', quantityKg: 2 }], reason: 'Đã xử lý hoàn 2 kg theo biên bản đối soát mẫu.', images: [], status: 'APPROVED', submittedAt: minutesAgo(190), approvedLines: [{ productId: 'mango-mekong', quantityKg: 2 }], refundVnd: 64_000, decisionNote: 'Đã xác nhận chất lượng lô hàng.', decidedAt: minutesAgo(180) },
-  ];
-  state.claims.push(...claims.filter(row => !state.claims.some(existing => existing.id === row.id)));
-  if (!state.withdrawals.some(row => row.id === 'showcase-withdrawal-201')) state.withdrawals.push({ id: 'showcase-withdrawal-201', supplierId: 'supplier-2', amountVnd: 100_000, status: 'PENDING', requestKey: 'showcase-withdrawal-request-201', createdAt: minutesAgo(30), note: 'Yêu cầu đối soát đợt gần nhất.' });
-  return state;
-}
-export function addGovernance(state: DemoState): DemoState {
-  state.profiles = [...state.suppliers.map(s => ({ id: s.id, role: 'SUPPLIER' as const, businessName: s.name, phone: s.phone, taxCode: s.taxCode ?? '', contactName: '', address: s.gardenAddress, status: 'DRAFT' as const, legacy: true })), ...state.customers.map(c => ({ id: c.id, role: 'CUSTOMER' as const, businessName: c.businessName, phone: c.phone, taxCode: c.taxCode ?? '', contactName: '', address: state.addresses.find(a => a.customerId === c.id)?.address ?? '', status: 'DRAFT' as const, legacy: true }))];
-  state.products.forEach(p => { p.legacy = true; });
-  state.qualityReviews = []; state.claims = []; state.demoNow = new Date().toISOString(); state.version = 5;
   return state;
 }

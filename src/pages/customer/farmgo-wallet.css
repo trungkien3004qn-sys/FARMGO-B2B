@@ -1,0 +1,392 @@
+.farmgo-wallet-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  font-family: 'Epilogue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.farmgo-wallet-page .page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.heading-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.wallet-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .wallet-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wallet-card-primary {
+  background: linear-gradient(135deg, #2e5b44 0%, #234735 50%, #1b3628 100%);
+  color: #ffffff;
+  border-radius: 1rem;
+  padding: 1.75rem;
+  box-shadow: 0 12px 28px -6px rgba(46, 91, 68, 0.32);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+}
+
+.wallet-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wallet-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.wallet-icon {
+  font-size: 1.5rem;
+}
+
+.wallet-status-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.wallet-balance-row {
+  margin: 1.5rem 0;
+}
+
+.wallet-label {
+  font-size: 0.875rem;
+  opacity: 0.85;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.wallet-amount {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.wallet-actions-bar {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-wallet-topup {
+  background: #ffffff;
+  color: #2e5b44;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-wallet-topup:hover {
+  background: #f5f2eb;
+  transform: translateY(-1px);
+}
+
+.btn-wallet-topup:active {
+  transform: scale(0.98);
+}
+
+.btn-wallet-pay {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.65rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.btn-wallet-pay:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-wallet-pay:active {
+  transform: scale(0.98);
+}
+
+.wallet-escrow-info {
+  border: 1px solid #ded7cb;
+  border-left: 4px solid #2e5b44;
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(34,38,31,0.03);
+}
+
+.escrow-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.escrow-shield {
+  font-size: 1.5rem;
+  color: #2e5b44;
+}
+
+.escrow-features {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.wallet-alert-success {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.txn-count {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.wallet-table-responsive {
+  overflow-x: auto;
+}
+
+.wallet-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.wallet-table th {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.wallet-table td {
+  padding: 0.85rem 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.875rem;
+}
+
+.cell-time {
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.cell-code code {
+  background: #f1f5f9;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.txn-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.txn-topup {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.txn-payment {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.txn-refund {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.cell-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.amount-plus {
+  color: #16a34a;
+}
+
+.amount-minus {
+  color: #dc2626;
+}
+
+.status-success-chip {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.txn-order-link {
+  margin-left: 0.5rem;
+  color: #2563eb;
+  font-size: 0.8rem;
+}
+
+/* Modal styles */
+.wallet-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.wallet-modal-dialog {
+  background: #ffffff;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 500px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.wallet-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.wallet-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.preset-amounts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.preset-btn {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 0.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-btn:hover,
+.preset-btn.active {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.custom-amount-field {
+  margin-bottom: 1rem;
+}
+
+.custom-amount-field input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+}
+
+.vietqr-sim-box {
+  background: #f8fafc;
+  border: 1px dashed #94a3b8;
+  border-radius: 0.5rem;
+  padding: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.vietqr-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0369a1;
+  margin-bottom: 0.5rem;
+}
+
+.vietqr-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.qr-price {
+  color: #16a34a;
+  font-size: 1.1rem;
+}
+
+.wallet-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

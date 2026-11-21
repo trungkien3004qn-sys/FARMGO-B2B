@@ -1,0 +1,44 @@
+{
+  "name": "farmgo-backend",
+  "version": "1.0.0",
+  "description": "FARMGO B2B Enterprise Backend with NestJS and Prisma",
+  "author": "FARMGO Team",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "npx prisma generate && (nest build || tsc -p tsconfig.build.json)",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma db push",
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.10",
+    "@nestjs/core": "^11.0.10",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.0.10",
+    "@nestjs/swagger": "^11.0.5",
+    "@prisma/client": "^6.4.0",
+    "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "@types/passport-jwt": "^4.0.1",
+    "prisma": "^6.4.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  }
+}

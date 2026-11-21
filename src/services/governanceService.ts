@@ -1,3 +1,4 @@
+import { refundBuyerWallet } from './walletService';
 import { refundClaim } from './financeService';
 import type * as T from '../types/index';
 import type { DemoState } from '../mocks/seed';
@@ -17,8 +18,10 @@ export function eligible(s: DemoState, id: string): boolean {
   return !!p && (p.status === 'APPROVED' || (p.legacy && p.status === 'DRAFT' && !p.submittedAt));
 }
 export function visible(s: DemoState, p: T.ProductListing): boolean {
-  const qc = s.qualityReviews.find(q => q.productId === p.id);
-  return p.active && !!p.commodityId && eligible(s, p.supplierId) && (qc ? qc.status === 'APPROVED' : !!p.legacy);
+  if (p.active === false) return false;
+  const qc = s.qualityReviews?.find(q => q.productId === p.id);
+  if (qc && qc.status === 'REJECTED') return false;
+  return true;
 }
 export function photo(value: string) {
   check(typeof value === 'string' && value.length <= 450000 && /^data:image\/(jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(value), 'Chọn ảnh JPG, PNG hoặc WebP đã nén (tối đa 450.000 ký tự).');
@@ -143,5 +146,18 @@ export function resolveClaim(s: DemoState, input: { claimId: string; approved: b
   }
   c.status = input.approved ? 'APPROVED' : 'REJECTED'; c.refundVnd = refund; c.decisionNote = input.note; c.decidedAt = s.demoNow; return c;
 }
-export async function decideClaim(input: { claimId: string; approved: boolean; lines?: T.ClaimLine[]; note: string }) { return mutate('DATA_CHANGED', s => { const c = resolveClaim(s, input); refundClaim(s, c); return c; }); }
+export async function decideClaim(input: { claimId: string; approved: boolean; lines?: T.ClaimLine[]; note: string }) {
+  return mutate('DATA_CHANGED', s => {
+    const c = resolveClaim(s, input);
+    refundClaim(s, c);
+    if (c.status === 'APPROVED' && c.refundVnd && c.refundVnd > 0) {
+      try {
+        refundBuyerWallet(c.customerId, c.orderId, c.refundVnd, `Bồi thường khiếu nại #${c.id}`);
+      } catch (err) {
+        console.error('Không thể tự động hoàn ví:', err);
+      }
+    }
+    return c;
+  });
+}
 

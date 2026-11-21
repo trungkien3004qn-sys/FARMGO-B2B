@@ -9,6 +9,7 @@ import {
 import { useDemoData } from '../../components/shared/useDemoData';
 import * as api from '../../services/demoService';
 import { ErrorMessage, LoadingSpinner } from '../../components/shared/Feedback';
+import { LucideIcon } from '../../components/shared/LucideIcon';
 
 const QUICK_TEMPLATES = [
   'Dạ nhà vườn cảm ơn quán đã tin tưởng ủng hộ nông sản của vườn! Chúc quán luôn đông khách ạ.',
@@ -106,12 +107,14 @@ export function SellerReviews() {
             Theo dõi ý kiến phản hồi từ các Quán F&B, Bếp Trưởng và gửi câu trả lời để nâng cao uy tín cho nhà vườn.
           </p>
         </div>
-        <span className="seller-chip">★ Đánh giá thực tế từ đơn mua</span>
+        <span className="seller-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <LucideIcon name="star" size={13} color="#f59e0b" fill="#f59e0b" /> Đánh giá thực tế từ đơn mua
+        </span>
       </div>
 
       {toastMessage && (
-        <div className="seller-toast-success" role="status">
-          ✓ {toastMessage}
+        <div className="seller-toast-success" role="status" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <LucideIcon name="check" size={15} /> {toastMessage}
         </div>
       )}
 
@@ -119,7 +122,9 @@ export function SellerReviews() {
       <div className="seller-metrics review-metrics-grid">
         <article>
           <span>Điểm đánh giá trung bình</span>
-          <strong className="green">{avgScore} ★</strong>
+          <strong className="green" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {avgScore} <LucideIcon name="star" size={16} color="#f59e0b" fill="#f59e0b" />
+          </strong>
           <small>Dựa trên {totalReviews} lượt đánh giá từ quán</small>
         </article>
 
@@ -218,7 +223,9 @@ export function SellerReviews() {
                       <strong>{review.customerName}</strong>
                       <span className="review-business">{review.customerBusiness}</span>
                     </div>
-                    <span className="review-verified-badge">✓ Đã mua hàng B2B</span>
+                    <span className="review-verified-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                      <LucideIcon name="check" size={12} /> Đã mua hàng B2B
+                    </span>
                   </div>
 
                   <div className="review-rating-block">
@@ -314,8 +321,7 @@ export function SellerReviews() {
                       ))}
                     </div>
 
-                    <textarea
-                      rows={3}
+                    <textarea aria-label="Nội dung phản hồi đánh giá" rows={3}
                       placeholder="Nhập nội dung phản hồi chân thành, lịch sự tới quán..."
                       value={currentReplyText}
                       onChange={e =>

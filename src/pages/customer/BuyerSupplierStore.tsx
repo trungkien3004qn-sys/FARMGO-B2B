@@ -13,6 +13,7 @@ import { StoreProductCard } from './StoreProductCard';
 import { ProductSellerChat } from './ProductSellerChat';
 import { saleReferencePrice } from './saleReferencePrices';
 import { productRatings } from '../../mocks/productRatings';
+import { LucideIcon } from '../../components/shared/LucideIcon';
 import './buyer-supplier-store.css';
 
 const tabs = [['all', 'Tổng quan'], ['products', 'Tất cả sản phẩm'], ['sale', 'Đang giảm giá'], ['preorders', 'Đặt trước']] as const;
@@ -30,7 +31,7 @@ function FollowShop({ customerId, supplierId }: { customerId: string; supplierId
       setFollowed(!followed);
       setError(false);
     } catch { setError(true); }
-  }}>{followed ? '✓ Đang theo dõi' : '+ Theo dõi'}</button>
+  }}>{followed ? <><LucideIcon name="check" size={14} /> Đang theo dõi</> : '+ Theo dõi'}</button>
   {error && <p role="alert">Không lưu được trạng thái theo dõi.</p>}</div>;
 }
 
@@ -86,7 +87,7 @@ function SupplierStore({ supplierId }: { supplierId?: string }) {
         <div><dt>Lô đang nhận đặt trước</dt><dd>{openLots.filter(lot => lot.remaining > 0).length}</dd></div>
         {supplier.regionLabel && <div><dt>Vùng trồng</dt><dd>{supplier.regionLabel}</dd></div>}
         {supplier.publicAddress && supplier.publicAddress !== supplier.regionLabel && <div><dt>Địa chỉ công khai</dt><dd>{supplier.publicAddress}</dd></div>}
-        <div><dt>Đánh giá</dt><dd>{ratingScore === undefined ? 'Chưa có đánh giá' : `★ ${ratingScore.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} · ${ratingCount.toLocaleString('vi-VN')} lượt mẫu`}</dd></div>
+        <div><dt>Đánh giá</dt><dd>{ratingScore === undefined ? 'Chưa có đánh giá' : <><LucideIcon name="star" size={13} color="#f59e0b" fill="#f59e0b" /> {ratingScore.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} · {ratingCount.toLocaleString('vi-VN')} lượt mẫu</>}</dd></div>
         {!!supplier.certifications?.length && <div><dt>Chứng nhận</dt><dd>{supplier.certifications.join(' · ')}</dd></div>}
         {supplier.description && <div className="buyer-shop-description"><dt>Giới thiệu nhà vườn</dt><dd>{supplier.description}</dd></div>}
       </dl>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { Order, OrderItem } from '../../types';
-import { getClaims, getDemoClock, getDemoSession, getCustomerOrders } from '../../services/demoService';
+import { getClaims, getDemoClock, getDemoSession, getCustomerOrders, buyerApproveQCAndSettleEscrow } from '../../services/demoService';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { LoadingSpinner, ErrorMessage } from '../../components/shared/Feedback';
 import { FruitPhoto } from '../../components/shared/FruitPhoto';
@@ -61,7 +61,7 @@ export function OrdersPage() {
     searchInput.current?.focus();
   };
   const { products } = useCatalog();
-  const { data, error } = useDemoData(async () => {
+  const s = useDemoData(async () => {
     const session = await getDemoSession();
     const customerId = session.activeCustomerId || 'customer-1';
     const [orders, now, claims] = await Promise.all([
@@ -69,6 +69,19 @@ export function OrdersPage() {
     ]);
     return { customerId, orders, now, claims, isBuyer: session.role === 'CUSTOMER' };
   });
+  const { data, error } = s;
+
+  const handleApproveQC = async (orderId: string) => {
+    try {
+      const res = await buyerApproveQCAndSettleEscrow(orderId);
+      alert(res.message);
+      await s.run(async () => {
+        // trigger reload
+      });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Nghiệm thu thất bại.');
+    }
+  };
   const productsById = new Map(products.map(product => [product.id, product]));
   const keyword = normalizeSearch(query);
   const visibleOrders = data?.orders.filter(order => {
@@ -193,6 +206,21 @@ export function OrdersPage() {
                   <div>Tổng tiền ({order.items.length} mặt hàng) <strong>{money(order.totalVnd)}</strong></div>
                 </div>
                 <div className="buyer-order-actions">
+                  {order.status === 'DELIVERED' && (order as any).qcStatus !== 'APPROVED' && (
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      style={{ background: '#16a34a', borderColor: '#16a34a', fontSize: '0.85rem' }}
+                      onClick={() => handleApproveQC(order.id)}
+                    >
+                      🛡️ Nghiệm thu QC &amp; Mở khóa Ký quỹ
+                    </button>
+                  )}
+                  {order.status === 'DELIVERED' && (order as any).qcStatus === 'APPROVED' && (
+                    <span style={{ fontSize: '0.82rem', color: '#16a34a', fontWeight: 600 }}>
+                      ✅ Đã giải ngân Escrow
+                    </span>
+                  )}
                   {data.isBuyer && canClaim(order, data.claims, data.now) && (
                     <Link className="btn-secondary" to={`/customer/claims?orderId=${encodeURIComponent(order.id)}`}>Gửi khiếu nại</Link>
                   )}

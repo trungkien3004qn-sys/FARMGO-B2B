@@ -1,43 +1,43 @@
 :root {
-  /* High contrast colors */
-  --text-primary: #0f172a;       /* Deep slate - sharp readability */
+  /* High contrast colors (Chuẩn Taste Skill: Palette Clay-Pine & Font Epilogue) */
+  --text-primary: #22261f;       /* Clay-Pine deep organic ink */
   --text-secondary: #334155;     /* Medium dark slate */
-  --text-muted: #475569;         /* High-contrast subtext */
+  --text-muted: #5a5c53;         /* Clay-Pine muted text */
   
-  /* Agricultural Brand Palette (Fresh Green) */
-  --green-main: #16a34a;
-  --green-dark: #15803d;
-  --green-deep: #14532d;
-  --green-soft: #f0fdf4;
-  --green-border: #bbf7d0;
+  /* Agricultural Brand Palette (Pine Green) */
+  --green-main: #2e5b44;
+  --green-dark: #234735;
+  --green-deep: #1b3628;
+  --green-soft: #f5f2eb;
+  --green-border: #ded7cb;
 
   /* Accent Highlight (Warm Amber / Harvest) */
-  --accent-main: #d97706;
+  --accent-main: #b45309;
   --accent-soft: #fffbeb;
   --accent-border: #fde68a;
 
   /* Surfaces & Borders */
-  --bg-page: #f8fafc;
+  --bg-page: #fbf9f5;
   --bg-card: #ffffff;
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
+  --border-light: #ded7cb;
+  --border-medium: #c8c0b2;
 
   /* Status Badges */
-  --status-placed-bg: #f1f5f9;
-  --status-placed-text: #334155;
+  --status-placed-bg: #f5f2eb;
+  --status-placed-text: #22261f;
   --status-agg-bg: #fef3c7;
   --status-agg-text: #92400e;
-  --status-hub-bg: #e0f2fe;
-  --status-hub-text: #0369a1;
-  --status-transit-bg: #ede9fe;
-  --status-transit-text: #5b21b6;
+  --status-hub-bg: #efe9e0;
+  --status-hub-text: #2e5b44;
+  --status-transit-bg: #e0ece3;
+  --status-transit-text: #1b3628;
   --status-done-bg: #dcfce7;
   --status-done-text: #166534;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Epilogue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-page);
   color: var(--text-primary);
   line-height: 1.5;
@@ -50,14 +50,16 @@ body {
 
 @media (hover: hover) and (pointer: fine) {
   :where(a[href], button:not(:disabled), [role="button"]:not([aria-disabled="true"]), input[type="button"]:not(:disabled), input[type="submit"]:not(:disabled), input[type="reset"]:not(:disabled), summary) {
-    transition: transform 180ms ease;
+    transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease;
     transform-origin: center;
   }
 
-  :where(a[href], button:not(:disabled), [role="button"]:not([aria-disabled="true"]), input[type="button"]:not(:disabled), input[type="submit"]:not(:disabled), input[type="reset"]:not(:disabled), summary):hover {
-    position: relative;
-    z-index: 1;
-    transform: scale(1.03);
+  :where(button:not(:disabled), [role="button"]:not([aria-disabled="true"]), input[type="button"]:not(:disabled), input[type="submit"]:not(:disabled)):hover {
+    transform: translateY(-1px);
+  }
+
+  :where(button:not(:disabled), [role="button"]:not([aria-disabled="true"]), input[type="button"]:not(:disabled), input[type="submit"]:not(:disabled)):active {
+    transform: scale(0.98);
   }
 }
 

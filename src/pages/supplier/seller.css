@@ -1,6 +1,6 @@
 .seller-app > .app-header,.seller-app > .demo-clock { display:none; }
 .seller-app > .app-main { max-width:none; padding:0; }
-.seller-shell { display:grid; grid-template-columns:254px minmax(0,1fr); min-height:100vh; background:#f7f9fc; color:#18263a; font-family:Inter,'Segoe UI',sans-serif; font-size:14px; }
+.seller-shell { display:grid; grid-template-columns:254px minmax(0,1fr); min-height:100vh; background:#fbf9f5; color:#22261f; font-family:'Epilogue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px; }
 .seller-sidebar { position:sticky; top:0; height:100vh; display:flex; flex-direction:column; background:#101828; color:#b5c2d3; padding:20px 12px; }
 .seller-brand { display:flex; align-items:center; gap:10px; padding:0 5px 22px; border-bottom:1px solid #263144; text-decoration:none; }
 .seller-brand img { width:48px; height:42px; object-fit:contain; background:white; border-radius:9px; }
@@ -316,3 +316,194 @@ body:has(.seller-listing-dialog[open]) { overflow: hidden; }
 .seller-htx-photo { display:grid; place-items:center; aspect-ratio:16/9; overflow:hidden; margin-bottom:12px; border-radius:8px; background:#e1f2e7; color:#195335; font-weight:750; }
 .seller-htx-photo img { width:100%; height:100%; object-fit:cover; }
 .seller-htx-grid article > strong { color:#17643e; font-size:1.2rem; }
+
+
+/* ==========================================================================
+   SMART AGRO-BIOLINK & FARM QR PROFILE ENHANCEMENTS
+   ========================================================================== */
+
+.seller-profile-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 24px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 2px;
+}
+
+.profile-tab-btn {
+  padding: 10px 18px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.18s ease;
+  border-radius: 6px 6px 0 0;
+}
+
+.profile-tab-btn:hover {
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.profile-tab-btn.is-active {
+  color: #166534;
+  border-bottom-color: #166534;
+  background: #f0fdf4;
+}
+
+.bio-tab-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.bio-settings-col {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.section-subheading {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.farm-field-full {
+  display: block;
+  margin-top: 12px;
+}
+
+.farm-field-full input,
+.farm-field-full textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.farm-field-full textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.farm-field-full input:focus,
+.farm-field-full textarea:focus {
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+}
+
+.social-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.social-inputs-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.social-inputs-grid input {
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+.social-inputs-grid input:focus {
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+}
+
+/* Smart QR Card in Seller Dashboard */
+.smart-qr-hero-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.qr-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.qr-card-header h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.live-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.qr-card-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.qr-usage-guide {
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.qr-usage-guide strong {
+  display: block;
+  color: #166534;
+  margin-bottom: 4px;
+}
+
+.qr-usage-guide ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.qr-usage-guide li {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .bio-tab-layout {
+    grid-template-columns: 1fr;
+  }
+  .social-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}

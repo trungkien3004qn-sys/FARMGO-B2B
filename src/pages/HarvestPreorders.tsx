@@ -151,7 +151,7 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
       <h1>{seller ? 'Đăng bán trước thu hoạch' : 'Lô hàng đặt trước từ nhà vườn'}</h1>
       <p>{seller ? 'Quản lý sản lượng dự kiến, hao hụt và đơn đặt cọc theo từng lô.' : 'Chọn lô sắp thu hoạch và ký quỹ 10% sau khi xác nhận đơn.'}</p>
     </div><button type="button" onClick={() => show({ kind: seller ? 'new' : 'request' })}>{seller ? '+ Thêm lô mới' : '+ Yêu cầu riêng'}</button></header>
-    <p className="harvest-caption">Đặt trước và ký quỹ mô phỏng</p>
+    <p className="harvest-caption">Hợp đồng bao tiêu nông sản &amp; Ký quỹ Escrow bảo đảm</p>
     {error && <ErrorMessage message={error} />}
     {notice && <p role="status">{notice}</p>}
     <div className="harvest-section-head"><h2>{seller ? 'Lô của nhà vườn' : 'Lô đang mở đặt trước'}</h2>
@@ -294,20 +294,21 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
                 <li><strong>Điều kiện giữ hàng.</strong> FARMGO đối chiếu khối lượng yêu cầu với lượng còn nhận đặt tại thời điểm ký quỹ. Khối lượng chỉ được giữ sau khi khoản ký quỹ được ghi nhận thành công. Nếu lượng còn lại không đủ, yêu cầu ký quỹ không được ghi nhận.</li>
                 <li><strong>Kết thúc nhận đặt trước.</strong> Khi nhà vườn hoàn tất lô, FARMGO dừng nhận đơn, xác nhận và ký quỹ mới cho lô đó. Bên mua có thể tra cứu khoản ký quỹ đã ghi nhận trong mục Đơn đặt trước của tôi.</li>
               </ol>
-              <p>Điều khoản này áp dụng cho giao dịch mô phỏng trên FARMGO. Bên mua không cần chuyển tiền.</p>
+              <p>Hợp đồng có hiệu lực pháp lý ràng buộc cam kết giao nhận và giữ giá cố định giữa hai bên.</p>
             </details>
           </div>
-          <label>Mã OTP mô phỏng<input inputMode="numeric" maxLength={6} value={otp} onChange={event => setOtp(event.target.value)} required /></label>
-          <p>Mã thử {api.preorderOtp}</p>
-          <button className="harvest-primary" disabled={busy || !accepted}>Xác nhận OTP</button>
-          <button type="button" disabled={busy || !accepted} onClick={() => void run(() => api.confirmPreorder(order.id, 'QR', ''), () => setOtp(''))}>Mô phỏng xác nhận QR</button>
+          <label>Mã OTP xác thực điện tử<input inputMode="numeric" maxLength={6} value={otp} onChange={event => setOtp(event.target.value)} placeholder="Nhập 000000" required /></label>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+            <button className="harvest-primary" disabled={busy || !accepted}>Ký hợp đồng bằng OTP</button>
+            <button type="button" disabled={busy || !accepted} onClick={() => void run(() => api.confirmPreorder(order.id, 'QR', ''), () => setOtp(''))}>Ký số bằng SmartQR</button>
+          </div>
         </form>}
         {order.verification && <p>Đã xác nhận bằng {order.verification}</p>}
         {!lot.completedAt && order.status === 'CONFIRMED' && <section className="harvest-payment">
-          <h3>Ký quỹ 10%</h3>
+          <h3>Ký quỹ bảo đảm 10% (Escrow Deposit)</h3>
           <div className="harvest-payment-details">
-            <div className="harvest-qr"><svg aria-hidden="true" viewBox="0 0 24 24" width="52" height="52" fill="currentColor"><path d="M2 2h8v8H2zm2 2v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10-2h4v4h-4zm4 4h4v4h-4zm2-4h2v2h-2zm-6 6h2v2h-2z" /></svg><span>QR minh họa</span></div>
-            <div><p>Số tiền ký quỹ <strong>{money(order.depositVnd)}</strong></p>
+            <div className="harvest-qr"><svg aria-hidden="true" viewBox="0 0 24 24" width="52" height="52" fill="currentColor"><path d="M2 2h8v8H2zm2 2v4h4V4zm10-2h8v8h-8zm2 2v4h4V4zM2 14h8v8H2zm2 2v4h4v-4zm10-2h4v4h-4zm4 4h4v4h-4zm2-4h2v2h-2zm-6 6h2v2h-2z" /></svg><span>VietQR Chuẩn</span></div>
+            <div><p>Số tiền ký quỹ (10%) <strong>{money(order.depositVnd)}</strong></p>
               <p>Nội dung chuyển khoản <code>{order.id}</code></p>
               <button type="button" onClick={async () => {
                 try { await navigator.clipboard.writeText(order.id); setCopyMessage('Đã sao chép mã hợp đồng.'); }
@@ -317,9 +318,9 @@ export function HarvestPreorders({ seller = false }: { seller?: boolean }) {
             </div>
           </div>
           <button className="harvest-primary" disabled={busy}
-            onClick={() => void run(() => api.depositPreorder(order.id), () => {})}>Xác nhận ký quỹ mô phỏng</button>
+            onClick={() => void run(() => api.depositPreorder(order.id), () => {})}>Thanh toán ký quỹ 10% qua Ví FarmGoPay</button>
         </section>}
-        {order.status === 'DEPOSITED' && <p className="harvest-checkout-context" role="status">Đã ghi nhận ký quỹ mô phỏng <b>{money(order.depositVnd)}</b>.</p>}
+        {order.status === 'DEPOSITED' && <p className="harvest-checkout-context" role="status">✅ Đã hoàn tất ký quỹ Escrow bảo đảm <b>{money(order.depositVnd)}</b>. Lượng nông sản đã được khóa giữ cho quán khi vào vụ thu hoạch.</p>}
       </div>}
     </Dialog>}
   </main>;

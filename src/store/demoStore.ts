@@ -3,7 +3,7 @@ import { addMarketShowcase } from '../mocks/marketShowcase';
 import { createSeed, addAdminOperationsShowcase, addAdminShowcaseProducts, addAdminShowcaseProfiles, addGovernance, commodities, type DemoState } from '../mocks/seed';
 import type { DemoDataEvent, ProductListing } from '../types/index';
 
-const KEY = 'b2b-demo-v1';
+const KEY = 'b2b-clean-v3';
 let state: DemoState | undefined;
 const listeners = new Set<(event: DemoDataEvent) => void>();
 function storage(): Storage | undefined { return typeof localStorage === 'undefined' ? undefined : localStorage; }
@@ -47,14 +47,16 @@ export function upgradeStoredState(value: unknown): DemoState {
   return addGovernance(upgraded);
 }
 function current(): DemoState {
-  if (!state) {
-    const saved = storage()?.getItem(KEY);
-    if (saved) {
-      let parsed: unknown;
-      try { parsed = JSON.parse(saved); } catch { throw new Error('Không đọc được dữ liệu demo đã lưu. Dữ liệu chưa bị ghi đè.'); }
-      const upgraded = upgradeStoredState(parsed);
-      state = upgraded;
-    } else state = createSeed();
+  const saved = storage()?.getItem(KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      state = upgradeStoredState(parsed);
+    } catch {
+      if (!state) state = createSeed();
+    }
+  } else if (!state) {
+    state = createSeed();
   }
   // Reconcile each fixture by stable ID so partially seeded sessions are repaired without resetting user data.
   const before = JSON.stringify(state);
@@ -69,6 +71,22 @@ function current(): DemoState {
     state = reconciled;
   }
   return state;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === KEY) {
+      const saved = storage()?.getItem(KEY);
+      if (saved) {
+        try {
+          state = upgradeStoredState(JSON.parse(saved));
+          for (const listener of [...listeners]) {
+            try { listener({ type: 'DATA_CHANGED' }); } catch {}
+          }
+        } catch {}
+      }
+    }
+  });
 }
 export function readState(): DemoState { return structuredClone(current()); }
 export function mutate<T>(type: DemoDataEvent['type'], action: (draft: DemoState) => T, reloadSaved = false): T {

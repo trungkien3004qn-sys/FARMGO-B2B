@@ -4,6 +4,7 @@ import { getAllOrders, subscribeDemoData } from '../../services/demoService';
 import { LoadingSpinner, ErrorMessage } from '../../components/shared/Feedback';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { HubProductThumbnail } from '../../components/shared/HubProductPhotos';
+import { LucideIcon } from '../../components/shared/LucideIcon';
 
 export function LabelsPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -38,7 +39,9 @@ export function LabelsPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <h2 style={{ margin: '0 0 4px 0', fontSize: '1.25rem' }}>🏷️ Phân Loại & In Tem Nhãn Sọt Hàng (04:00 Sáng)</h2>
+          <h1 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <LucideIcon name="tag" size={20} /> Phân Loại & In Tem Nhãn Sọt Hàng (04:00 Sáng)
+          </h1>
           <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
             Sinh mã QR và in tem dán lên từng sọt chứa hàng cho các quán trước khi bàn giao cho tài xế.
           </p>
@@ -47,8 +50,9 @@ export function LabelsPage() {
           type="button"
           className="btn-primary"
           onClick={() => window.print()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          🖨️ In Hàng Loạt Tem Sọt
+          <LucideIcon name="printer" size={16} /> In Hàng Loạt Tem Sọt
         </button>
       </div>
 
@@ -57,14 +61,14 @@ export function LabelsPage() {
 
       {!loading && !error && orders.length === 0 && (
         <EmptyState
-          icon="🏷️"
+          icon="tag"
           title="Chưa có đơn hàng để in tem"
           description="Khi có đơn hàng được tổng hợp và đưa về Hub, tem sọt sẽ xuất hiện tại đây."
         />
       )}
 
       {!loading && !error && orders.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 20 }}>
           {orders.map((order) => {
             const totalKg = order.items.reduce((s, i) => s + i.quantityKg, 0);
 

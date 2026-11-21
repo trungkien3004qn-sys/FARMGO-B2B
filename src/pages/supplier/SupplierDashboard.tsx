@@ -1,3 +1,4 @@
+import { SupplierWalletPage } from './SupplierWalletPage';
 import { SellerHtxProducts } from './SellerHtxProducts';
 import { HarvestPreorders } from '../HarvestPreorders';
 import { FinancePage } from '../FinancePage';
@@ -18,6 +19,7 @@ export function SupplierDashboard() {
       <Routes>
         <Route path="preorders" element={<HarvestPreorders seller />} />
         <Route path="orders" element={<SellerOrders />} />
+        <Route path="wallet" element={<SupplierWalletPage />} />
         <Route path="htx-products" element={<SellerHtxProducts />} />
         <Route path="reviews" element={<SellerReviews />} />
         <Route path="finance" element={<FinancePage />} />

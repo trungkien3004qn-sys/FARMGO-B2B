@@ -10,6 +10,7 @@ import { StatusBadge } from '../../components/shared/StatusBadge';
 import { LoadingSpinner, ErrorMessage } from '../../components/shared/Feedback';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { HubProductThumbnail } from '../../components/shared/HubProductPhotos';
+import { LucideIcon } from '../../components/shared/LucideIcon';
 
 export function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -60,7 +61,7 @@ export function AdminOrdersPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <h2 style={{ margin: '0 0 4px 0', fontSize: '1.25rem' }}>Quản Lý Đơn Hàng Toàn Hệ Thống</h2>
+          <h1 style={{ margin: '0 0 4px 0', fontSize: '1.25rem' }}>Quản Lý Đơn Hàng Toàn Hệ Thống</h1>
           <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
             Tổng số: <strong>{orders.length} đơn hàng</strong> từ các quán cà phê / nhà hàng
           </span>
@@ -70,14 +71,14 @@ export function AdminOrdersPage() {
       {loading && <LoadingSpinner />}
       {error && <ErrorMessage message={error} onRetry={loadData} />}
       {actionMsg && (
-        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: '8px', marginBottom: 16 }}>
-          ✅ {actionMsg}
+        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <LucideIcon name="checkCircle" size={16} /> {actionMsg}
         </div>
       )}
 
       {!loading && !error && orders.length === 0 && (
         <EmptyState
-          icon="📦"
+          icon="package"
           title="Chưa có đơn hàng nào"
           description="Hệ thống chưa ghi nhận đơn đặt hàng từ các quán B2B."
         />
@@ -122,24 +123,24 @@ export function AdminOrdersPage() {
                       <td>
                         <StatusBadge status={order.status} />
                         {assignedShipment && (
-                          <div style={{ fontSize: '0.75rem', color: '#0369a1', marginTop: 4 }}>
-                            🚚 Tuyến: {assignedShipment.routeLabel}
+                          <div style={{ fontSize: '0.75rem', color: '#0369a1', marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <LucideIcon name="truck" size={13} /> Tuyến: {assignedShipment.routeLabel}
                           </div>
                         )}
                       </td>
                       <td>
                         {assignedShipment ? (
-                          <span style={{ fontSize: '0.75rem', color: '#64748b' }} title="Đơn đã gán chuyến; chuyển trạng thái qua màn hình Điều phối chuyến">
-                            🔒 Khóa chuyển lẻ (Theo chuyến)
+                          <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: '4px' }} title="Đơn đã gán chuyến; chuyển trạng thái qua màn hình Điều phối chuyến">
+                            <LucideIcon name="lock" size={12} /> Khóa chuyển lẻ (Theo chuyến)
                           </span>
                         ) : order.status === 'SUPPLIER_CONFIRMED' ? (
                           <button
                             type="button"
                             className="btn-primary"
-                            style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                            style={{ padding: '4px 8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                             onClick={() => handleAdvanceStatus(order.id, 'AT_HUB')}
                           >
-                            Xác nhận Nhập Hub 📥
+                            <LucideIcon name="inbox" size={13} /> Xác nhận Nhập Hub
                           </button>
                         ) : order.status === 'PLACED' ? (
                           <span style={{ fontSize: '0.75rem', color: '#f59e0b' }}>

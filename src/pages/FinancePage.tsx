@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as api from '../services/demoService';
 import type { EscrowAllocation, Withdrawal } from '../types';
 import { useDemoData } from '../components/shared/useDemoData';
 import { ErrorMessage, LoadingSpinner } from '../components/shared/Feedback';
 import { money } from '../components/shared/useCatalog';
+import { LucideIcon } from '../components/shared/LucideIcon';
+import { getPlatformFund, type PlatformFund } from '../services/walletService';
 
 type RunAction = (action: () => Promise<unknown>) => Promise<boolean>;
 const withdrawalStatus = { PENDING: 'Chờ duyệt', APPROVED: 'Đã chuyển khoản demo', REJECTED: 'Đã từ chối' };
@@ -21,6 +23,17 @@ function WithdrawalActions({ withdrawal, busy, run }: { withdrawal: Withdrawal; 
 export function FinancePage() {
   const s = useDemoData(async () => ({ finance: await api.getFinance(), session: await api.getDemoSession(), orders: await api.getAllOrders(), claims: await api.getClaims(), suppliers: await api.getSuppliers(), now: await api.getDemoClock() }));
   const [amount, setAmount] = useState('');
+  const [platformFund, setPlatformFund] = useState<PlatformFund>(getPlatformFund);
+
+  useEffect(() => {
+    const handleFundUpdate = (e: any) => {
+      if (e.detail?.fund) setPlatformFund(e.detail.fund);
+      else setPlatformFund(getPlatformFund());
+    };
+    window.addEventListener('farmgo-platform-fund-updated', handleFundUpdate);
+    return () => window.removeEventListener('farmgo-platform-fund-updated', handleFundUpdate);
+  }, []);
+
   const admin = s.data?.session.role === 'ADMIN';
   const supplier = s.data?.session.role === 'SUPPLIER';
   const withdraw = () => s.run(async () => {
@@ -43,7 +56,6 @@ export function FinancePage() {
   const eligible = finance.allocations.filter(isEligible);
   const pendingWithdrawals = finance.withdrawals.filter(withdrawal => withdrawal.status === 'PENDING');
   const heldTotal = finance.ledger.reduce((total, entry) => total + (entry.kind === 'HOLD' ? entry.amountVnd : entry.kind === 'REFUND' || entry.kind === 'SETTLEMENT' ? -entry.amountVnd : 0), 0);
-  const platformRevenue = finance.ledger.filter(entry => entry.kind === 'SETTLEMENT').reduce((total, entry) => total + (entry.feeVnd ?? 0), 0);
   const pendingTotal = pendingWithdrawals.reduce((total, withdrawal) => total + withdrawal.amountVnd, 0);
 
   const settleAll = () => s.run(async () => {
@@ -51,23 +63,86 @@ export function FinancePage() {
   });
 
   return <div className="finance-page">
-    <div className="page-heading finance-page-heading"><div><h1>{admin ? 'Đối soát thanh toán & quản lý ví Escrow' : 'Escrow & đối soát'}</h1><p>{admin ? 'Theo dõi tiền hàng đang giữ, phí nền tảng và lệnh giải ngân.' : 'Giao dịch mô phỏng, thao tác duyệt thủ công. Không gọi ngân hàng.'}</p></div>
+    <div className="page-heading finance-page-heading"><div><h1>{admin ? 'Đối soát thanh toán & Quản lý Quỹ Hub Sàn FARMGO' : 'Escrow & đối soát'}</h1><p>{admin ? 'Theo dõi dòng tiền ký quỹ Escrow, 4 nguồn doanh thu sàn (7% NCC, 4% Vận chuyển, 0.5% Bảo hiểm, 4% Đối tác Hữu cơ) và quỹ Hub sàn.' : 'Giao dịch đối soát tự động & rã ví khi quán F&B nghiệm thu đơn hàng.'}</p></div>
       {admin && <button type="button" className="btn-primary finance-batch-button" disabled={s.busy || eligible.length === 0} onClick={() => void settleAll()}>Duyệt quyết toán đủ điều kiện ({eligible.length})</button>}
     </div>
     {s.error && <ErrorMessage message={s.error} />}
 
     {admin && <div className="finance-overview" aria-label="Tổng quan đối soát">
-      <section className="card finance-overview-card"><span>Tiền đang giữ trong Escrow</span><strong>{money(heldTotal)}</strong><small>Số dư từ sổ giao dịch demo</small></section>
-      <section className="card finance-overview-card finance-overview-fees"><span>Phí nền tảng đã ghi nhận</span><strong>{money(platformRevenue)}</strong><small>3% trên tiền hàng đã đối soát</small></section>
-      <section className="card finance-overview-card finance-overview-pending"><span>Lệnh chờ rút tiền</span><strong>{money(pendingTotal)}</strong><small>{pendingWithdrawals.length} yêu cầu đang chờ duyệt</small></section>
+      <section className="card finance-overview-card" style={{ background: '#f0fdf4', borderColor: '#86efac' }}>
+        <span style={{ color: '#166534', fontWeight: 600 }}>🏛️ Quỹ Doanh Thu Hub Quản Lý Sàn</span>
+        <strong style={{ color: '#15803d', fontSize: '1.6rem' }}>{money(platformFund.totalRevenueVnd)}</strong>
+        <div style={{ marginTop: '8px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '3px', color: '#166534' }}>
+          <span>• 7% từ NCC trên mỗi đơn thành công: <b>{money(platformFund.totalSupplierCommissionsVnd)}</b></span>
+          <span>• 4% từ Đối tác Vận chuyển theo thỏa thuận: <b>{money(platformFund.totalDriverCommissionsVnd)}</b></span>
+          <span>• 0.5% từ Đối tác Bảo hiểm nông sản: <b>{money(platformFund.totalInsuranceCommissionsVnd)}</b></span>
+          <span>• 4% từ Đối tác Hữu cơ (Tuần hoàn bã & phân bón): <b>{money(platformFund.totalOrganicCommissionsVnd || 0)}</b></span>
+        </div>
+      </section>
+      <section className="card finance-overview-card">
+        <span>Tiền đang giữ trong Escrow</span>
+        <strong>{money(heldTotal)}</strong>
+        <small>Tiền hàng đang khóa chờ nghiệm thu QC</small>
+      </section>
+      <section className="card finance-overview-card finance-overview-pending">
+        <span>Lệnh chờ rút tiền của vựa</span>
+        <strong>{money(pendingTotal)}</strong>
+        <small>{pendingWithdrawals.length} yêu cầu đang chờ duyệt</small>
+      </section>
     </div>}
+
+    {admin && (
+      <section className="card finance-section" style={{ borderLeft: '4px solid #16a34a' }}>
+        <header className="finance-section-heading">
+          <div>
+            <h2>🏛️ Sổ cái Quỹ Doanh Thu Hub Quản Lý Sàn (Dòng doanh thu FARMGO)</h2>
+            <p>Trích lập tự động theo đề án: 7% hoa hồng đơn hàng + 4% cước đối tác vận chuyển + 0.5% bảo hiểm</p>
+          </div>
+          <span style={{ fontWeight: 700, color: '#15803d' }}>{platformFund.transactions.length} lượt thu phí</span>
+        </header>
+        {platformFund.transactions.length === 0 ? (
+          <p className="finance-empty">Chưa có giao dịch thu phí sàn nào.</p>
+        ) : (
+          <div className="table-responsive finance-table-scroll">
+            <table className="data-table finance-table">
+              <thead>
+                <tr>
+                  <th>Mã giao dịch</th>
+                  <th>Thời gian</th>
+                  <th>Mã đơn hàng</th>
+                  <th>7% từ NCC</th>
+                  <th>4% từ Vận chuyển</th>
+                  <th>0.5% Bảo hiểm</th>
+                  <th>Tổng thu Quỹ Sàn</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody>
+                {platformFund.transactions.map(tx => (
+                  <tr key={tx.id}>
+                    <td><code>{tx.id}</code></td>
+                    <td>{new Date(tx.timestamp).toLocaleString('vi-VN')}</td>
+                    <td><b>{tx.orderCode}</b></td>
+                    <td style={{ color: '#15803d' }}>+{money(tx.supplierCommissionVnd)}</td>
+                    <td style={{ color: '#0284c7' }}>+{money(tx.driverCommissionVnd)}</td>
+                    <td style={{ color: '#d97706' }}>+{money(tx.insuranceCommissionVnd)}</td>
+                    <td><strong style={{ color: '#15803d', fontSize: '1rem' }}>+{money(tx.totalPlatformRevenueVnd)}</strong></td>
+                    <td><small>{tx.description}</small></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    )}
 
     {supplier && <section className="card finance-withdraw-box"><div><h2>Yêu cầu rút tiền</h2><p>Yêu cầu đang chờ sẽ giữ chỗ số dư khả dụng.</p></div><label>Số tiền VND<input type="number" min="1" step="1" value={amount} onChange={event => setAmount(event.target.value)} /></label><button disabled={s.busy || !amount} className="btn-primary" onClick={() => void withdraw()}>Gửi yêu cầu rút</button></section>}
     {supplier && <div className="finance-overview finance-supplier-balances">{finance.balances.map(balance => <section className="card finance-overview-card" key={balance.supplierId}><span>Số dư khả dụng · {supplierName(balance.supplierId)}</span><strong>{money(balance.availableVnd)}</strong><small>Đang giữ chỗ {money(balance.reservedVnd)} · Đã rút {money(balance.paidVnd)}</small></section>)}</div>}
 
     <section className="card finance-section finance-settlement-section">
-      <header className="finance-section-heading"><div><h2>Sổ cái dòng tiền Escrow & yêu cầu giải ngân</h2><p>Phí 3% tính trên tiền hàng sau hoàn; phí giao được theo dõi riêng.</p></div><span>{finance.allocations.length} khoản</span></header>
-      {finance.allocations.length === 0 ? <p className="finance-empty">Chưa có thanh toán Escrow demo. Đơn cũ không được tạo giao dịch hồi tố.</p> : <div className="table-responsive finance-table-scroll"><table className="data-table finance-table"><thead><tr><th>Mã yêu cầu</th><th>Nhà cung cấp</th><th>Tiền hàng</th><th>Phí sàn (3%)</th><th>NCC nhận</th><th>Thông tin nhận tiền</th><th>Xử lý lệnh</th></tr></thead><tbody>
+      <header className="finance-section-heading"><div><h2>Sổ cái dòng tiền Escrow & yêu cầu giải ngân</h2><p>Phí 7% tính trên tiền hàng; cước xe và bảo hiểm phân bổ tự động vào Quỹ Hub sàn.</p></div><span>{finance.allocations.length} khoản</span></header>
+      {finance.allocations.length === 0 ? <p className="finance-empty">Chưa có thanh toán Escrow. Khi quán nghiệm thu đơn hàng, tiền sẽ rã tự động.</p> : <div className="table-responsive finance-table-scroll"><table className="data-table finance-table"><thead><tr><th>Mã yêu cầu</th><th>Nhà cung cấp</th><th>Tiền hàng</th><th>Phí sàn (7%)</th><th>NCC nhận (93%)</th><th>Thông tin nhận tiền</th><th>Xử lý lệnh</th></tr></thead><tbody>
         {finance.allocations.map(allocation => {
           const order = orders.find(entry => entry.id === allocation.orderId);
           const openClaim = claims.some(claim => claim.orderId === allocation.orderId && claim.supplierId === allocation.supplierId && api.openClaim(claim));
@@ -78,8 +153,8 @@ export function FinancePage() {
             <td><strong>{money(allocation.goodsVnd - allocation.refundedVnd)}</strong>{allocation.refundedVnd > 0 && <small className="finance-cell-note">Đã hoàn {money(allocation.refundedVnd)}</small>}</td>
             <td className="finance-fee-value">{allocation.feeVnd !== undefined ? money(allocation.feeVnd) : 'Chưa đối soát'}</td>
             <td className="finance-net-value">{allocation.supplierNetVnd !== undefined ? money(allocation.supplierNetVnd) : 'Chưa đối soát'}</td>
-            <td><span className="finance-bank-placeholder">Ví demo · chưa kết nối ngân hàng</span></td>
-            <td>{allocation.status === 'SETTLED' ? <span className="finance-status finance-status-approved">✓ Đã đối soát</span> : admin && isEligible(allocation) ? <button className="btn-primary" disabled={s.busy} onClick={() => void s.run(() => api.settleEscrow({ orderId: allocation.orderId, supplierId: allocation.supplierId }))}>Duyệt giải ngân</button> : <span className="finance-status finance-status-pending">{statusText}</span>}</td>
+            <td><span className="finance-bank-placeholder">Ví FarmGoPay Nhà vườn</span></td>
+            <td>{allocation.status === 'SETTLED' ? <span className="finance-status finance-status-approved" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><LucideIcon name="checkCircle" size={13} /> Đã đối soát</span> : admin && isEligible(allocation) ? <button className="btn-primary" disabled={s.busy} onClick={() => void s.run(() => api.settleEscrow({ orderId: allocation.orderId, supplierId: allocation.supplierId }))}>Duyệt giải ngân</button> : <span className="finance-status finance-status-pending">{statusText}</span>}</td>
           </tr>;
         })}
       </tbody></table></div>}

@@ -1,12 +1,29 @@
 import { useEffect, useState } from 'react';
 import { resetDemoData, subscribeDemoData } from '../../services/demoService';
 import { resetCartStorage } from './useBuyerCart';
+import { api } from '../../services/apiClient';
 import '../../styles/theme.css';
 
 export function DemoModeBanner() {
   const [resetting, setResetting] = useState(false);
   const [error, setError] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      const ok = await api.checkHealth();
+      if (active) setBackendOnline(ok);
+    };
+    void check();
+    const timer = setInterval(check, 10000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, []);
+
   useEffect(() => subscribeDemoData(event => {
     if (event.type === 'RESET') void resetCartStorage().catch(() => setError('Không xóa được giỏ demo. Vui lòng tải lại trang.'));
   }), []);
@@ -28,9 +45,52 @@ export function DemoModeBanner() {
 
   return (
     <div className="demo-banner-slim">
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <span className="tag">Bản Demo</span>
-        <span>FARMGO · Demo mode — dữ liệu giả lập</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <span className="tag">FARMGO B2B</span>
+        <span>Nền tảng Nông sản Chuẩn Hóa & Ký Quỹ Escrow</span>
+        {backendOnline === true && (
+          <a
+            href="http://localhost:3000/api/docs"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '2px 8px',
+              borderRadius: '999px',
+              background: '#dcfce7',
+              color: '#15803d',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              border: '1px solid #bbf7d0',
+            }}
+            title="Bấm để mở tài liệu Swagger API Backend"
+          >
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
+            Backend: Online (NestJS :3000)
+          </a>
+        )}
+        {backendOnline === false && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '2px 8px',
+              borderRadius: '999px',
+              background: '#fef3c7',
+              color: '#92400e',
+              fontSize: '12px',
+              fontWeight: 600,
+              border: '1px solid #fde68a',
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#d97706', display: 'inline-block' }} />
+            Backend: Offline (Chạy chế độ Demo độc lập)
+          </span>
+        )}
         {error && <span role="alert">{error}</span>}
       </div>
       <div className="demo-reset-actions">

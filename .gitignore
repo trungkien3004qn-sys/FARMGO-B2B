@@ -24,3 +24,13 @@ dist-ssr
 *.sw?
 
 .env
+.impeccable/
+.agents/
+.codex/
+.gemini/
+.taste-skill/
+shots/
+*.docx
+generate_skills_doc.py
+server/prisma/dev.db*
+

@@ -1,0 +1,251 @@
+// FARMGO B2B Enterprise Database Schema
+// Optimized for zero-config SQLite development, switchable to PostgreSQL via env
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. NGƯỜI DÙNG & VAI TRÒ (BUYER, SUPPLIER, ADMIN, DRIVER)
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         String        @default("BUYER") // BUYER | SUPPLIER | ADMIN | DRIVER
+  phone        String?
+  companyName  String?
+  address      String?
+  createdAt    DateTime      @default(now())
+
+  orders               Order[]
+  claims               Claim[]
+  pickups              GreenPickup[]
+  vouchers             GreenVoucher[]
+  withdrawals          Withdrawal[]
+  wallet               Wallet?
+  bioFertilizerOrders  BioFertilizerOrder[]
+}
+
+// 2. SẢN PHẨM & TỒN KHO
+model Product {
+  id            String      @id @default(uuid())
+  supplierId    String
+  name          String
+  category      String      // RAU_CU, TRAI_CAY, GIA_VI
+  unit          String      // kg, hop, thung
+  priceVnd      Int
+  stockKg       Int
+  origin        String      // Da Lat, Tien Giang, Ben Tre...
+  storageTemp   String?     // "5-10°C"
+  shelfLifeDays Int?
+  imageUrl      String?
+  isActive      Boolean     @default(true)
+
+  orderItems    OrderItem[]
+}
+
+// 3. ĐƠN HÀNG (Idempotent với requestKey)
+model Order {
+  id                String            @id @default(uuid())
+  orderCode         String            @unique
+  buyerId           String
+  requestKey        String            @unique
+  deliveryDate      DateTime
+  deliverySlot      String            @default("MORNING") // MORNING | AFTERNOON
+  orderMode         String            @default("SINGLE")  // SINGLE | GROUP
+  carrier           String            @default("TRUCK")
+  shippingFeeVnd    Int               @default(0)
+  discountVnd       Int               @default(0)
+  totalVnd          Int
+  status            String            @default("PAID")    // PAID | CONFIRMED | AGGREGATED | TRANSIT | DELIVERED | CANCELLED
+  createdAt         DateTime          @default(now())
+  deliveredAt       DateTime?
+
+  buyer             User              @relation(fields: [buyerId], references: [id])
+  items             OrderItem[]
+  escrowAllocations EscrowAllocation[]
+  claims            Claim[]
+  shipmentOrder     ShipmentOrder?
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  productId    String
+  supplierId   String
+  quantityKg   Int
+  unitPriceVnd Int
+  subtotalVnd  Int
+
+  order        Order    @relation(fields: [orderId], references: [id])
+  product      Product  @relation(fields: [productId], references: [id])
+}
+
+// 4. KÝ QUỸ TÀI CHÍNH (ESCROW & SỔ CÁI)
+model EscrowAllocation {
+  id             String    @id @default(uuid())
+  orderId        String
+  supplierId     String
+  goodsVnd       Int
+  refundedVnd    Int       @default(0)
+  feeVnd         Int       @default(0) // 3% hoa hồng sàn
+  supplierNetVnd Int       @default(0)
+  status         String    @default("HELD") // HELD | SETTLED
+  settledAt      DateTime?
+
+  order          Order     @relation(fields: [orderId], references: [id])
+}
+
+model LedgerEntry {
+  id         String   @id @default(uuid())
+  kind       String   // HOLD | REFUND | SETTLEMENT | WITHDRAWAL
+  orderId    String?
+  supplierId String?
+  amountVnd  Int
+  feeVnd     Int      @default(0)
+  note       String?
+  createdAt  DateTime @default(now())
+}
+
+// 5. KHIẾU NẠI & ĐỀN BÙ
+model Claim {
+  id              String    @id @default(uuid())
+  orderId         String
+  buyerId         String
+  damagedKg       Int
+  refundAmountVnd Int
+  reason          String
+  photoUrl        String?
+  status          String    @default("OPEN") // OPEN | APPROVED | REJECTED
+  resolvedAt      DateTime?
+
+  order           Order     @relation(fields: [orderId], references: [id])
+  buyer           User      @relation(fields: [buyerId], references: [id])
+}
+
+// 6. ĐIỀU PHỐI VẬN CHUYỂN & GOM ĐƠN 22H (MILK-RUN)
+model Shipment {
+  id            String          @id @default(uuid())
+  shipmentCode  String          @unique
+  driverId      String?
+  slot          String          @default("MORNING")
+  scheduledDate DateTime
+  status        String          @default("PLANNING") // PLANNING | IN_TRANSIT | COMPLETED
+
+  orders        ShipmentOrder[]
+}
+
+model ShipmentOrder {
+  id         String   @id @default(uuid())
+  shipmentId String
+  orderId    String   @unique
+  crateCode  String   // Mã QR sọt hàng
+  sequence   Int      @default(1)
+
+  shipment   Shipment @relation(fields: [shipmentId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
+
+// 7. KINH TẾ TUẦN HOÀN (FARMGO GREEN & HTX)
+model GreenPickup {
+  id           String    @id @default(uuid())
+  buyerId      String
+  wasteType    String
+  expectedKg   Int
+  actualKg     Int?
+  earnedPoints Int       @default(0)
+  status       String    @default("WAITING") // WAITING | CONFIRMED | EN_ROUTE | COMPLETE | RECEIVED
+  createdAt    DateTime  @default(now())
+  receivedAt   DateTime?
+
+  buyer        User      @relation(fields: [buyerId], references: [id])
+}
+
+model GreenVoucher {
+  id          String   @id @default(uuid())
+  buyerId     String
+  discountVnd Int
+  pointsSpent Int
+  isUsed      Boolean  @default(false)
+  orderId     String?
+  createdAt   DateTime @default(now())
+
+  buyer       User     @relation(fields: [buyerId], references: [id])
+}
+
+model Withdrawal {
+  id         String   @id @default(uuid())
+  supplierId String
+  amountVnd  Int
+  bankName   String
+  accountNo  String
+  status     String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdAt  DateTime @default(now())
+
+  supplier   User     @relation(fields: [supplierId], references: [id])
+}
+
+// 8. VÍ ĐIỆN TỬ FARMGOPAY (SHOPEEPAY-LIKE WALLET)
+model Wallet {
+  id                  String              @id @default(uuid())
+  userId              String              @unique
+  availableBalanceVnd Int                 @default(0) // Số dư khả dụng
+  pendingEscrowVnd    Int                 @default(0) // Số dư đang giữ ký quỹ
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  user                User                @relation(fields: [userId], references: [id])
+  transactions        WalletTransaction[]
+}
+
+model WalletTransaction {
+  id          String   @id @default(uuid())
+  walletId    String
+  type        String   // TOPUP | PAYMENT | REFUND | SETTLEMENT | WITHDRAW | FERTILIZER_PURCHASE
+  amountVnd   Int
+  description String
+  status      String   @default("SUCCESS") // SUCCESS | PENDING | FAILED
+  referenceId String?
+  createdAt   DateTime @default(now())
+
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+}
+
+// 9. SÀN PHÂN BÓN HỮU CƠ & CHẾ PHẨM SINH HỌC HTX (BIO-FERTILIZER)
+model BioFertilizerProduct {
+  id          String               @id @default(uuid())
+  name        String
+  category    String               // PHAN_HUU_CO | PHAN_VI_SINH | CHE_PHAM_NAM | MEN_U
+  packaging   String               // Bao 25kg, Can 5L, Gói 500g...
+  priceVnd    Int
+  stock       Int                  @default(100)
+  description String
+  imageUrl    String?
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+
+  orders      BioFertilizerOrder[]
+}
+
+model BioFertilizerOrder {
+  id            String               @id @default(uuid())
+  orderCode     String               @unique
+  supplierId    String               // Nhà vườn đặt mua
+  productId     String
+  quantity      Int
+  unitPriceVnd  Int
+  totalVnd      Int
+  paymentMethod String               @default("WALLET") // WALLET | COD
+  status        String               @default("PENDING") // PENDING | DELIVERING | DELIVERED
+  deliveryAddr  String
+  createdAt     DateTime             @default(now())
+
+  supplier      User                 @relation(fields: [supplierId], references: [id])
+  product       BioFertilizerProduct @relation(fields: [productId], references: [id])
+}
+

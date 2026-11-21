@@ -177,7 +177,7 @@ export interface Shipment {
 export interface CheckoutOptions {
   orderMode: 'SINGLE' | 'GROUP';
   carrier: 'GHN' | 'GHTK' | 'TRUCK';
-  paymentMethod: 'BANK' | 'COD' | 'MOMO' | 'ZALOPAY';
+  paymentMethod: 'BANK' | 'COD' | 'MOMO' | 'ZALOPAY' | 'FARMGOPAY';
   insurance: boolean;
 }
 
@@ -197,13 +197,14 @@ export interface NewOrderInput {
 
 export interface NewProductInput {
   supplierId: string;
-  commodityId: string;
+  commodityId?: string;
   name: string;
+  category?: 'FRESH_FRUIT' | 'VEGETABLES' | 'SPICES';
   variety?: string;
   availableKg: number;
   publicPricePerKg: number;
   imageUrl?: string;
-  uses: ProductUse[];
+  uses?: ProductUse[];
   originLabel?: string;
   packagingLabel?: string;
 }

@@ -10,6 +10,7 @@ import {
 import { LoadingSpinner, ErrorMessage } from '../../components/shared/Feedback';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { HubProductThumbnail, HubSupplierName } from '../../components/shared/HubProductPhotos';
+import { LucideIcon } from '../../components/shared/LucideIcon';
 
 export function AggregatePage() {
   const [demand, setDemand] = useState<DemandLine[]>([]);
@@ -70,7 +71,9 @@ export function AggregatePage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <h2 style={{ margin: '0 0 4px 0', fontSize: '1.25rem' }}>🔄 Gom Nhu Cầu (mốc 22:00)</h2>
+          <h1 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <LucideIcon name="refreshCw" size={20} /> Gom Nhu Cầu (mốc 22:00)
+          </h1>
           <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
             Tổng hợp các đơn đặt hàng nhỏ lẻ từ tất cả các quán cà phê thành đơn hàng sỉ tổng gửi về các nhà vườn.
           </p>
@@ -87,26 +90,26 @@ export function AggregatePage() {
       </div>
 
       {placedOrdersCount > 0 ? (
-        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#b45309', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, fontSize: '0.9rem' }}>
-          🔔 Có <strong>{placedOrdersCount} đơn hàng mới</strong> từ các quán đang chờ chốt gom đơn lúc 22:00.
+        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#b45309', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <LucideIcon name="bell" size={16} /> Có <strong>{placedOrdersCount} đơn hàng mới</strong> từ các quán đang chờ chốt gom đơn lúc 22:00.
         </div>
       ) : (
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, fontSize: '0.85rem' }}>
-          ℹ️ Không có đơn mới chờ gom.
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <LucideIcon name="info" size={15} /> Không có đơn mới chờ gom.
         </div>
       )}
 
       {loading && <LoadingSpinner />}
       {error && <ErrorMessage message={error} onRetry={loadData} />}
       {successMsg && (
-        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: '8px', marginBottom: 16 }}>
-          ✅ {successMsg}
+        <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: '8px', marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <LucideIcon name="checkCircle" size={16} /> {successMsg}
         </div>
       )}
 
       {!loading && !error && demand.length === 0 && (
         <EmptyState
-          icon="📊"
+          icon="chartBar"
           title="Chưa có nhu cầu gom đơn"
           description="Chưa có đơn hàng nào được đặt hoặc tất cả đơn đã hoàn thành giao hàng."
         />

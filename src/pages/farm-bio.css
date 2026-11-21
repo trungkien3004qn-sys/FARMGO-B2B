@@ -1,0 +1,627 @@
+/* ==========================================================================
+   FARM BIO-LINK & SMART QR MOBILE LANDING PAGE
+   Modern, sleek mobile-first Agro-BioLink interface
+   ========================================================================== */
+
+.farm-bio-viewport {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ecfdf5 0%, #f1f5f9 40%, #e2e8f0 100%);
+  display: flex;
+  justify-content: center;
+  padding: 20px 12px 60px;
+  font-family: inherit;
+}
+
+.farm-bio-card-wrapper {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 36px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cover Header */
+.farm-bio-cover {
+  height: 140px;
+  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #10b981 100%);
+  position: relative;
+  padding: 14px 16px;
+}
+
+.cover-badge-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.platform-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.btn-qr-trigger {
+  background: rgba(255, 255, 255, 0.92);
+  border: 0;
+  color: #065f46;
+  font-size: 12px;
+  font-weight: 750;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-qr-trigger:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Avatar & Identity */
+.farm-bio-header {
+  padding: 0 20px 16px;
+  text-align: center;
+  position: relative;
+  margin-top: -50px;
+}
+
+.farm-avatar-ring {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  background: #dcfce7;
+  color: #166534;
+  margin: 0 auto 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.avatar-initial {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.verified-check {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #166534;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 850;
+  display: grid;
+  place-items: center;
+  border: 2px solid #ffffff;
+}
+
+.farm-title-text {
+  font-size: 20px;
+  font-weight: 850;
+  color: #0f172a;
+  line-height: 1.3;
+  margin: 0 0 6px;
+}
+
+.farm-tagline-text {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.farm-owner-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.farm-owner-label strong {
+  color: #0f172a;
+}
+
+.farm-metrics-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bio-pill {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.bio-pill.cert-pill {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  font-weight: 750;
+}
+
+/* Action Links (Biolink buttons) */
+.farm-bio-links-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 18px 18px;
+}
+
+.bio-action-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  text-decoration: none;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bio-action-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
+}
+
+.bio-action-link:active {
+  transform: translateY(1px);
+}
+
+.bio-action-link .link-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.link-label-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.link-label-wrap strong {
+  display: block;
+  font-size: 13.5px;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.link-label-wrap small {
+  display: block;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.link-arrow {
+  color: #94a3b8;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+/* Channel branding highlights */
+.bio-action-link.link-zalo:hover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+
+.bio-action-link.link-facebook:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.bio-action-link.link-tiktok:hover {
+  border-color: #0f172a;
+  background: #fafafa;
+}
+
+.bio-action-link.link-hotline {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.bio-action-link.link-hotline:hover {
+  background: #dcfce7;
+  border-color: #166534;
+}
+
+/* Farm Story */
+.farm-story-card {
+  margin: 0 18px 18px;
+  padding: 16px 18px;
+  background: #f8fafc;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.story-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.story-heading h2 {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.story-content-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0 0 12px;
+}
+
+.farm-address-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+/* Products showcase */
+.farm-products-showcase {
+  padding: 0 18px 18px;
+}
+
+.showcase-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.showcase-header-row h2 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.view-market-link {
+  font-size: 12.5px;
+  color: #166534;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bio-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bio-product-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+}
+
+.bio-product-item:hover {
+  border-color: #166534;
+  background: #f0fdf4;
+  transform: translateX(2px);
+}
+
+.bio-product-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.bio-product-thumb .supplier-photo-frame {
+  height: 100%;
+}
+
+.bio-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bio-product-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.bio-product-name {
+  display: block;
+  font-size: 13.5px;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bio-product-spec {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  margin: 1px 0 2px;
+}
+
+.bio-product-price .price-num {
+  font-size: 14px;
+  font-weight: 800;
+  color: #166534;
+  font-variant-numeric: tabular-nums;
+}
+
+.bio-product-cta {
+  font-size: 12px;
+  font-weight: 750;
+  color: #166534;
+  flex-shrink: 0;
+}
+
+/* Footer & Actions */
+.farm-bio-footer-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 18px 18px;
+}
+
+.btn-share-bio,
+.btn-open-qr {
+  flex: 1;
+  min-height: 42px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0;
+  transition: all 0.15s ease;
+}
+
+.btn-share-bio {
+  background: #166534;
+  color: #ffffff;
+}
+
+.btn-share-bio:hover {
+  background: #15803d;
+}
+
+.btn-open-qr {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-open-qr:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.farm-bio-footer {
+  text-align: center;
+  padding: 16px 20px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.farm-bio-footer p {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 6px 0 0;
+}
+
+/* --- QR MODAL --- */
+.bio-qr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.bio-qr-modal-card {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: popUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+
+@keyframes popUp {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.modal-top-row h3 {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.btn-modal-close {
+  background: transparent;
+  border: 0;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.btn-modal-close:hover {
+  color: #0f172a;
+}
+
+.modal-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px;
+  line-height: 1.45;
+}
+
+.modal-print-tip {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #166534;
+  text-align: left;
+  line-height: 1.45;
+}
+
+/* SMART QR COMPONENT STYLING */
+.smart-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.qr-preview-box {
+  position: relative;
+  padding: 12px;
+  background: #ffffff;
+  border: 2px solid #166534;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(22, 101, 52, 0.12);
+}
+
+.qr-image {
+  display: block;
+  border-radius: 8px;
+}
+
+.qr-badge-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border: 1.5px solid #166534;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #166534;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.qr-details-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qr-target-url-label {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: #64748b;
+  text-align: left;
+}
+
+.qr-target-code {
+  display: block;
+  font-size: 11.5px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: #0f172a;
+  word-break: break-all;
+  text-align: left;
+}
+
+.qr-buttons-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.btn-qr-action {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-link {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.btn-copy-link:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-print-label {
+  background: #166534;
+  border: 0;
+  color: #ffffff;
+}
+
+.btn-print-label:hover {
+  background: #15803d;
+}

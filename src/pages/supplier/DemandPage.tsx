@@ -115,7 +115,7 @@ export function DemandPage() {
 
       {!loading && !error && demand.length === 0 && (
         <EmptyState
-          icon="📋"
+          icon="clipboardList"
           title="Chưa có yêu cầu xuất hàng"
           description="Các quán chưa chốt đơn hôm nay hoặc hệ thống chưa chạy tổng hợp nhu cầu lúc 22:00."
         />
@@ -191,13 +191,13 @@ export function DemandPage() {
                   Xác nhận cam kết đủ số lượng thu hoạch và khai báo biển số xe giao hàng để bố trí tiếp nhận hàng:
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 16, marginBottom: 16 }}>
                   <div>
                     <label style={{ display: 'block', fontWeight: 700, fontSize: '0.85rem', color: '#0f172a', marginBottom: 4 }}>
                       Biển số xe vận chuyển:
                     </label>
                     <input
-                      type="text"
+                      type="text" aria-label="Biển số xe giao tới Hub"
                       className="account-dropdown"
                       style={{ width: '100%', padding: '9px 12px' }}
                       placeholder="VD: 49C-123.45"

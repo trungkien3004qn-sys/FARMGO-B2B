@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { subscribeDemoData } from '../../services/demoService';
 import { useNavigate } from 'react-router-dom';
+import { LucideIcon } from './LucideIcon';
 
 interface PhaseStep {
   time: string;
@@ -103,11 +104,12 @@ export function PhaseAdvancer() {
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         title="Bấm để chọn khung giờ demo"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
       >
-        <span>⏱️ {current.time}</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><LucideIcon name="clock" size={13} /> {current.time}</span>
         <span style={{ opacity: 0.7 }}>•</span>
         <span>{current.role}</span>
-        <span>{isOpen ? '✕' : '▲'}</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center' }}>{isOpen ? <LucideIcon name="x" size={13} /> : <LucideIcon name="chevronUp" size={13} />}</span>
       </button>
     </div>
   );
